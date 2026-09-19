@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T15:53:24.539Z",
+  "generatedAt": "2026-09-19T16:14:27.429Z",
   "node": "v24.12.0",
   "platform": "win32",
   "arch": "x64",
@@ -40,44 +40,44 @@
     {
       "name": "readable-uuid",
       "direction": "encode",
-      "medianNs": 881,
-      "p10Ns": 814,
-      "p90Ns": 1081
+      "medianNs": 939,
+      "p10Ns": 680,
+      "p90Ns": 1407
     },
     {
       "name": "readable-uuid",
       "direction": "decode",
-      "medianNs": 4186,
-      "p10Ns": 4061,
-      "p90Ns": 4520
+      "medianNs": 4680,
+      "p10Ns": 3467,
+      "p90Ns": 5347
     },
     {
       "name": "niceware",
       "direction": "encode",
-      "medianNs": 1495,
-      "p10Ns": 1235,
-      "p90Ns": 1785
+      "medianNs": 1676,
+      "p10Ns": 1086,
+      "p90Ns": 1871
     },
     {
       "name": "niceware",
       "direction": "decode",
-      "medianNs": 3738,
-      "p10Ns": 3441,
-      "p90Ns": 4222
+      "medianNs": 4080,
+      "p10Ns": 3174,
+      "p90Ns": 4771
     },
     {
       "name": "@scure/bip39",
       "direction": "encode",
-      "medianNs": 105548,
-      "p10Ns": 102751,
-      "p90Ns": 114571
+      "medianNs": 109432,
+      "p10Ns": 83327,
+      "p90Ns": 117913
     },
     {
       "name": "@scure/bip39",
       "direction": "decode",
-      "medianNs": 118196,
-      "p10Ns": 116747,
-      "p90Ns": 133960
+      "medianNs": 122144,
+      "p10Ns": 94482,
+      "p90Ns": 136851
     }
   ],
   "batch": {
@@ -87,15 +87,15 @@
     "results": [
       {
         "direction": "encode",
-        "medianNs": 778,
-        "p10Ns": 727,
-        "p90Ns": 799
+        "medianNs": 791,
+        "p10Ns": 728,
+        "p90Ns": 839
       },
       {
         "direction": "decode",
-        "medianNs": 4068,
-        "p10Ns": 3872,
-        "p90Ns": 4160
+        "medianNs": 4167,
+        "p10Ns": 3921,
+        "p90Ns": 4589
       }
     ]
   },
