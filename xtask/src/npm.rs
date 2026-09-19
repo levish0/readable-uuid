@@ -37,15 +37,7 @@ pub fn build(args: &[String]) -> Result {
 
     run(Command::new("wasm-pack")
         .current_dir(binding_dir())
-        .args([
-            "build",
-            "--target",
-            "web",
-            "--mode",
-            "no-install",
-            "--release",
-            "--no-pack",
-        ])
+        .args(["build", "--target", "web", "--release", "--no-pack"])
         .arg("--out-dir")
         .arg(&wasm_output))?;
 
