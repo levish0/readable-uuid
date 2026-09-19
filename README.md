@@ -63,28 +63,12 @@ Also exports `readableUuidBatch` and `wordSets`. See [Node.js details](bindings/
 
 Median formatting time; lower is better.
 
-<table width="100%">
-  <thead>
-    <tr>
-      <th align="left">Implementation</th>
-      <th align="right">Median</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>readable-uuid</code></td>
-      <td align="right"><strong>395 ns</strong></td>
-    </tr>
-    <tr>
-      <td><code>wordhash</code></td>
-      <td align="right">1,187 ns</td>
-    </tr>
-    <tr>
-      <td><code>humanhash</code></td>
-      <td align="right">1,667 ns</td>
-    </tr>
-  </tbody>
-</table>
+| Implementation  |     Median |
+| --------------- | ---------: |
+| `readable-uuid` | **395 ns** |
+| `wordhash`      |   1,187 ns |
+| `humanhash`     |   1,667 ns |
+
 See [benchmark methodology and full results](docs/performance.md).
 
 ## Development

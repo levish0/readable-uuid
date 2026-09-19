@@ -10,11 +10,11 @@ The native binding was built in release mode. Run `just npm-bench` after
 
 | Implementation | Version | Median | p10–p90 |
 | --- | --- | ---: | ---: |
-| readable-uuid | 0.1.0 | 395 ns | 379–408 ns |
-| wordhash | 1.0.1 | 1,261 ns | 1,165–1,394 ns |
-| humanhash | 1.0.4 | 1,748 ns | 1,642–1,953 ns |
+| readable-uuid | 0.1.0 | 392 ns | 382–425 ns |
+| wordhash | 1.0.1 | 1,193 ns | 1,174–1,217 ns |
+| humanhash | 1.0.4 | 1,633 ns | 1,589–1,718 ns |
 
-A 1,000-UUID readable-uuid batch measured 406 ns per UUID (397–410 ns p10–p90).
+A 1,000-UUID readable-uuid batch measured 412 ns per UUID (398–475 ns p10–p90).
 It was not faster than single calls on this corpus: array conversion and result
 allocation are part of the measurement.
 
