@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T15:04:11.527Z",
+  "generatedAt": "2026-09-19T15:32:13.402Z",
   "node": "v24.12.0",
   "platform": "win32",
   "arch": "x64",
@@ -18,9 +18,9 @@
   "operationsPerRound": 16384,
   "outputs": [
     {
-      "name": "readable-uuid (default)",
+      "name": "readable-uuid",
       "words": 8,
-      "meanCharacters": 89.27,
+      "meanCharacters": 73.31,
       "checksum": false
     },
     {
@@ -38,66 +38,66 @@
   ],
   "results": [
     {
-      "name": "readable-uuid (default)",
+      "name": "readable-uuid",
       "direction": "encode",
-      "medianNs": 715,
-      "p10Ns": 691,
-      "p90Ns": 760
+      "medianNs": 897,
+      "p10Ns": 791,
+      "p90Ns": 1188
     },
     {
-      "name": "readable-uuid (default)",
+      "name": "readable-uuid",
       "direction": "decode",
-      "medianNs": 1828,
-      "p10Ns": 1793,
-      "p90Ns": 1852
+      "medianNs": 3556,
+      "p10Ns": 3118,
+      "p90Ns": 4134
     },
     {
       "name": "niceware",
       "direction": "encode",
-      "medianNs": 1250,
-      "p10Ns": 1119,
-      "p90Ns": 1346
+      "medianNs": 1535,
+      "p10Ns": 1310,
+      "p90Ns": 2051
     },
     {
       "name": "niceware",
       "direction": "decode",
-      "medianNs": 3112,
-      "p10Ns": 3028,
-      "p90Ns": 3570
+      "medianNs": 4059,
+      "p10Ns": 3402,
+      "p90Ns": 5178
     },
     {
       "name": "@scure/bip39",
       "direction": "encode",
-      "medianNs": 83858,
-      "p10Ns": 82898,
-      "p90Ns": 88840
+      "medianNs": 101166,
+      "p10Ns": 95293,
+      "p90Ns": 115409
     },
     {
       "name": "@scure/bip39",
       "direction": "decode",
-      "medianNs": 96014,
-      "p10Ns": 95271,
-      "p90Ns": 127635
+      "medianNs": 116209,
+      "p10Ns": 110806,
+      "p90Ns": 131290
     }
   ],
   "batch": {
-    "name": "readable-uuid (default)",
+    "name": "readable-uuid",
     "size": 1000,
     "unit": "ns per UUID",
     "results": [
       {
         "direction": "encode",
-        "medianNs": 400,
-        "p10Ns": 390,
-        "p90Ns": 423
+        "medianNs": 690,
+        "p10Ns": 550,
+        "p90Ns": 742
       },
       {
         "direction": "decode",
-        "medianNs": 1747,
-        "p10Ns": 1589,
-        "p90Ns": 1914
+        "medianNs": 3533,
+        "p10Ns": 3194,
+        "p90Ns": 3823
       }
     ]
   },
-  "checksum": 102211608
+  "checksum": 97491828
 }

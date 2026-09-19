@@ -23,17 +23,8 @@ fn bench(criterion: &mut Criterion) {
         id.as_bytes()
     );
 
-    // Both encoders allocate a phrase; both decoders return the original UUID.
-    // BIP39 also computes and validates its four-bit checksum.
     criterion.bench_function("readable-uuid/encode", |bench| {
         bench.iter(|| codec.encode(black_box(&id)))
-    });
-    criterion.bench_function("bip39/encode", |bench| {
-        bench.iter(|| {
-            Mnemonic::from_entropy(black_box(id.as_bytes()))
-                .unwrap()
-                .to_string()
-        })
     });
     criterion.bench_function("readable-uuid/decode", |bench| {
         bench.iter(|| codec.decode(black_box(&phrase)).unwrap())
@@ -51,6 +42,13 @@ fn bench(criterion: &mut Criterion) {
             Uuid::from_slice(&niceware::passphrase_to_bytes(&words).unwrap()).unwrap()
         })
     });
+    criterion.bench_function("bip39/encode", |bench| {
+        bench.iter(|| {
+            Mnemonic::from_entropy(black_box(id.as_bytes()))
+                .unwrap()
+                .to_string()
+        })
+    });
     criterion.bench_function("bip39/decode", |bench| {
         bench.iter(|| {
             let parsed =
@@ -59,7 +57,8 @@ fn bench(criterion: &mut Criterion) {
             Uuid::from_slice(&bytes[..length]).unwrap()
         })
     });
-    let mut output = String::with_capacity(256);
+
+    let mut output = String::with_capacity(128);
     criterion.bench_function("readable-uuid/encode-reuse", |bench| {
         bench.iter(|| {
             output.clear();

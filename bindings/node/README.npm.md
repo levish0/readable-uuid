@@ -12,9 +12,8 @@ const phrases = encodeBatch(uuids);
 const restored = decodeBatch(phrases);
 ```
 
-The built-in codebook contains 65,536 fixed codewords and
-preserves every UUID bit in eight lowerCamelCase entries. Decoding accepts ASCII
-case variations.
+The built-in codebook contains 65,536 fixed English words and preserves every
+UUID bit in eight entries. Decoding accepts ASCII case variations.
 
 Use `separator` to replace the default hyphen:
 

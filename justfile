@@ -16,7 +16,7 @@ test *args:
     cargo test -p readable-uuid {{args}}
 
 bench *args:
-    cargo bench -p readable-uuid --bench format {{args}}
+    cargo bench -p readable-uuid --bench codec {{args}}
 
 publish-crates-dry *args:
     cargo xtask publish-dry {{args}}

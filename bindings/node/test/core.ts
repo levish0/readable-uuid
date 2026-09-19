@@ -32,14 +32,13 @@ test('shared Rust golden vectors in both directions', () => {
 });
 
 test('independent byte reference and deterministic built-in round trips', () => {
-  const readWords = (filename: string) =>
-    readFileSync(new URL(`../../../wordlists/${filename}`, import.meta.url), 'utf8')
-      .trim()
-      .split(/\r?\n/);
-  const modifiers = readWords('modifiers.txt');
-  const nouns = readWords('nouns.txt');
-  assert.equal(modifiers.length, 256);
-  assert.equal(nouns.length, 256);
+  const codewords = readFileSync(
+    new URL('../../../wordlists/codewords.txt', import.meta.url),
+    'utf8',
+  )
+    .trim()
+    .split(/\r?\n/);
+  assert.equal(codewords.length, 65_536);
   const uuids = [nil, maximum];
   for (let index = 0; index < 256; index++) {
     const hex = createHash('sha256').update(`codec-test:${index}`).digest('hex').slice(0, 32);
@@ -49,10 +48,10 @@ test('independent byte reference and deterministic built-in round trips', () => 
   }
   for (const uuid of uuids) {
     const bytes = Buffer.from(uuid.replaceAll('-', ''), 'hex');
-    const expected = Array.from({ length: 8 }, (_, index) => {
-      const noun = nouns[bytes[index * 2 + 1]];
-      return modifiers[bytes[index * 2]] + noun[0].toUpperCase() + noun.slice(1);
-    }).join('-');
+    const expected = Array.from(
+      { length: 8 },
+      (_, index) => codewords[bytes.readUInt16BE(index * 2)],
+    ).join('-');
     const phrase = encode(uuid);
     assert.equal(phrase, expected);
     assert.equal(phrase.split('-').length, 8);

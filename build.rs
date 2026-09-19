@@ -1,82 +1,47 @@
-use std::{collections::HashSet, env, fs, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
-const COMPONENT_COUNT: usize = 256;
-const MIN_COMPONENT_BYTES: usize = 3;
-const MAX_COMPONENT_BYTES: usize = 7;
+const CODEBOOK_SIZE: usize = 65_536;
+const MIN_CODEWORD_BYTES: usize = 3;
+const MAX_CODEWORD_BYTES: usize = 12;
 
 fn main() {
-    println!("cargo:rerun-if-changed=wordlists/modifiers.txt");
-    println!("cargo:rerun-if-changed=wordlists/nouns.txt");
+    const PATH: &str = "wordlists/codewords.txt";
 
-    let modifiers = read_components("wordlists/modifiers.txt");
-    let nouns = read_components("wordlists/nouns.txt");
-    validate_compounds(&modifiers, &nouns);
+    println!("cargo:rerun-if-changed={PATH}");
 
-    let output = format!(
-        "pub static MODIFIERS: &[&str; {COMPONENT_COUNT}] = &{modifiers:?};\n\
-         pub static NOUNS: &[&str; {COMPONENT_COUNT}] = &{nouns:?};\n\
-         pub const MODIFIERS_MIN: usize = {};\n\
-         pub const MODIFIERS_MAX: usize = {};\n\
-         pub const NOUNS_MIN: usize = {};\n\
-         pub const NOUNS_MAX: usize = {};\n",
-        minimum_length(&modifiers),
-        maximum_length(&modifiers),
-        minimum_length(&nouns),
-        maximum_length(&nouns),
-    );
+    let source = fs::read(PATH).expect("read codeword list");
+    assert!(source.ends_with(b"\n"), "{PATH}: must end with a newline");
+    assert!(!source.contains(&b'\r'), "{PATH}: must use LF line endings");
 
-    fs::write(
-        PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("lists.rs"),
-        output,
-    )
-    .unwrap();
-}
-
-fn read_components(path: &str) -> Vec<String> {
-    let text = fs::read_to_string(path).expect("read word-list component file");
-    let words: Vec<_> = text.lines().map(str::to_owned).collect();
-
+    let codewords: Vec<_> = source[..source.len() - 1]
+        .split(|byte| *byte == b'\n')
+        .collect();
     assert_eq!(
-        words.len(),
-        COMPONENT_COUNT,
-        "{path}: expected exactly {COMPONENT_COUNT} entries"
-    );
-    assert!(
-        words.windows(2).all(|pair| pair[0] < pair[1]),
-        "{path}: entries must be strictly sorted"
+        codewords.len(),
+        CODEBOOK_SIZE,
+        "{PATH}: expected exactly {CODEBOOK_SIZE} entries"
     );
 
-    for (index, word) in words.iter().enumerate() {
+    for (index, codeword) in codewords.iter().enumerate() {
         assert!(
-            (MIN_COMPONENT_BYTES..=MAX_COMPONENT_BYTES).contains(&word.len())
-                && word.bytes().all(|byte| byte.is_ascii_lowercase()),
-            "{path}: entry {index} must be {MIN_COMPONENT_BYTES}..={MAX_COMPONENT_BYTES} lowercase ASCII letters"
+            (MIN_CODEWORD_BYTES..=MAX_CODEWORD_BYTES).contains(&codeword.len())
+                && codeword.iter().all(u8::is_ascii_lowercase),
+            "{PATH}: entry {index} must be {MIN_CODEWORD_BYTES}..={MAX_CODEWORD_BYTES} lowercase ASCII letters"
         );
     }
+    assert!(
+        codewords.windows(2).all(|pair| pair[0] < pair[1]),
+        "{PATH}: entries must be unique and sorted by ASCII byte order"
+    );
 
-    words
-}
-
-fn validate_compounds(modifiers: &[String], nouns: &[String]) {
-    let mut compounds = HashSet::with_capacity(COMPONENT_COUNT * COMPONENT_COUNT);
-
-    for modifier in modifiers {
-        for noun in nouns {
-            let mut compound = String::with_capacity(modifier.len() + noun.len());
-            compound.push_str(modifier);
-            compound.push_str(noun);
-            assert!(
-                compounds.insert(compound),
-                "component lists contain an ambiguous compound: {modifier} + {noun}"
-            );
-        }
+    let mut position = 0_u32;
+    let mut offsets = Vec::with_capacity((CODEBOOK_SIZE + 1) * size_of::<u32>());
+    for codeword in &codewords {
+        offsets.extend_from_slice(&position.to_le_bytes());
+        position += u32::try_from(codeword.len() + 1).expect("codeword source fits in u32");
     }
-}
+    offsets.extend_from_slice(&position.to_le_bytes());
 
-fn minimum_length(words: &[String]) -> usize {
-    words.iter().map(String::len).min().unwrap()
-}
-
-fn maximum_length(words: &[String]) -> usize {
-    words.iter().map(String::len).max().unwrap()
+    let output_directory = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    fs::write(output_directory.join("codeword-offsets.bin"), offsets).unwrap();
 }

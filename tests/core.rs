@@ -23,23 +23,17 @@ fn all_codewords_roundtrip_with_case_variations() {
 }
 
 #[test]
-fn mapping_matches_ordered_component_files() {
-    let modifiers: Vec<_> = include_str!("../wordlists/modifiers.txt").lines().collect();
-    let nouns: Vec<_> = include_str!("../wordlists/nouns.txt").lines().collect();
+fn mapping_matches_ordered_codeword_file() {
+    let codewords: Vec<_> = include_str!("../wordlists/codewords.txt").lines().collect();
+    assert_eq!(codewords.len(), CODEBOOK_SIZE);
     let id = Uuid::parse_str("550e8400-e29b-41d4-a716-446655440000").unwrap();
 
     let expected = id
         .as_bytes()
-        .chunks_exact(2)
-        .map(|pair| {
-            let noun = nouns[usize::from(pair[1])];
-            format!(
-                "{}{}{}",
-                modifiers[usize::from(pair[0])],
-                noun[..1].to_ascii_uppercase(),
-                &noun[1..]
-            )
-        })
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|pair| codewords[usize::from(u16::from_be_bytes([pair[0], pair[1]]))])
         .collect::<Vec<_>>()
         .join("-");
 
@@ -113,9 +107,13 @@ fn invalid_configuration_and_phrases() {
 
     let codec = ReadableUuid::default();
     let phrase = codec.encode(&Uuid::nil());
+    let first = include_str!("../wordlists/codewords.txt")
+        .lines()
+        .next()
+        .unwrap();
     for invalid in [
         String::new(),
-        format!("{phrase}-ableAcorn"),
+        format!("{phrase}-{first}"),
         phrase.split('-').skip(1).collect::<Vec<_>>().join("-"),
     ] {
         assert!(matches!(
@@ -125,7 +123,7 @@ fn invalid_configuration_and_phrases() {
     }
 
     let mut codewords: Vec<_> = phrase.split('-').collect();
-    codewords[3] = "unknown";
+    codewords[3] = "not_a_codeword";
     assert_eq!(
         codec.decode(&codewords.join("-")),
         Err(Error::UnknownCodeword(3))
@@ -158,14 +156,10 @@ fn frozen_vectors_and_word_lists() {
         assert_eq!(codec.decode(phrase).unwrap(), id);
     }
 
-    for (name, source) in [
-        ("modifiers", include_str!("../wordlists/modifiers.txt")),
-        ("nouns", include_str!("../wordlists/nouns.txt")),
-    ] {
-        let canonical = format!("{}\n", source.lines().collect::<Vec<_>>().join("\n"));
-        assert_eq!(
-            blake3::hash(canonical.as_bytes()).to_hex().as_str(),
-            data["dictionaries"][name].as_str().unwrap()
-        );
-    }
+    let source = include_str!("../wordlists/codewords.txt");
+    let canonical = format!("{}\n", source.lines().collect::<Vec<_>>().join("\n"));
+    assert_eq!(
+        blake3::hash(canonical.as_bytes()).to_hex().as_str(),
+        data["dictionaries"]["codewords"].as_str().unwrap()
+    );
 }

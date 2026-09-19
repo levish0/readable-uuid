@@ -3,9 +3,9 @@
 Lossless UUIDs as eight memorable English codewords. Rust core with Node.js bindings.
 
 ```text
-550e8400-e29b-41d4-a716-446655440000
+01e3071e-14c2-42ce-8835-a0b4be8afc03
 ↕
-foggyBirch-lucidAcorn-tinyPearl-easyStool-plushBridge-equalHorse-foggyFence-ableAcorn
+acorn-anchor-birch-dolphin-meadow-pebble-river-willow
 ```
 
 ## Rust
@@ -48,13 +48,14 @@ Also exports `encodeBatch` and `decodeBatch`.
 
 ## Format
 
-The built-in codebook has 65,536 entries, formed from 256 modifiers and 256
-concrete nouns. Each two-byte UUID chunk selects one modifier and one noun, so
-all 128 bits round-trip in exactly eight lowerCamelCase codewords.
+The built-in codebook has 65,536 fixed English words. Each two-byte UUID chunk
+is a big-endian index into the codebook, so all 128 bits round-trip in exactly
+eight codewords.
 
-The source lists are small and reviewable. `build.rs` validates their size,
-order, spelling and all 65,536 combinations. Their contents and order are
-frozen as part of the public format.
+`build.rs` validates the codebook's size, order and spelling, then generates a
+compact offset table for direct access. The codebook contents and order are
+frozen as part of the public format. Its provenance is documented with the
+[word list](wordlists/README.md).
 
 Decoding accepts ASCII case variations. There is no checksum: replacing one
 valid codeword can produce another valid UUID. See the

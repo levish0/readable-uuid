@@ -41,7 +41,7 @@ interface Codec {
 
 const codecs: Codec[] = [
   {
-    name: 'readable-uuid (default)',
+    name: 'readable-uuid',
     encode: (uuid) => encode(uuid, { separator: ' ' }),
     decode: (phrase) => decode(phrase, { separator: ' ' }),
     checksum: false,
@@ -181,7 +181,7 @@ const report = {
   })),
   results,
   batch: {
-    name: 'readable-uuid (default)',
+    name: 'readable-uuid',
     size: batch.length,
     unit: 'ns per UUID',
     results: batchResults,

@@ -1,77 +1,76 @@
 {
   "dictionaries": {
-    "modifiers": "f97a5172fdeb4142f772e7fa62e7f50eaba00a17a982ae2cc7c0143d741e6d60",
-    "nouns": "8178f591d588853c9683800d4b217308bc3e372671231e4fd1e56e9d5a7b055c"
+    "codewords": "17647370ab4c838f435dc27207d0d7fdcf8ba8c08884357cad7f46cfb87dfe89"
   },
   "vectors": [
     {
-      "label": "ableAcorn-ableAcorn-ableAcorn-ableAcorn-ableAcorn-ableAcorn-ableAcorn-ableAcorn",
+      "label": "aah-aah-aah-aah-aah-aah-aah-aah",
       "separator": "-",
       "uuid": "00000000-0000-0000-0000-000000000000",
       "words": 8
     },
     {
-      "label": "ableAcorn ableAcorn ableAcorn ableAcorn ableAcorn ableAcorn ableAcorn ableAcorn",
+      "label": "aah aah aah aah aah aah aah aah",
       "separator": " ",
       "uuid": "00000000-0000-0000-0000-000000000000",
       "words": 8
     },
     {
-      "label": "ableAcorn::ableAcorn::ableAcorn::ableAcorn::ableAcorn::ableAcorn::ableAcorn::ableAcorn",
+      "label": "aah::aah::aah::aah::aah::aah::aah::aah",
       "separator": "::",
       "uuid": "00000000-0000-0000-0000-000000000000",
       "words": 8
     },
     {
-      "label": "zonalZebra-zonalZebra-zonalZebra-zonalZebra-zonalZebra-zonalZebra-zonalZebra-zonalZebra",
+      "label": "zymurgy-zymurgy-zymurgy-zymurgy-zymurgy-zymurgy-zymurgy-zymurgy",
       "separator": "-",
       "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
       "words": 8
     },
     {
-      "label": "zonalZebra zonalZebra zonalZebra zonalZebra zonalZebra zonalZebra zonalZebra zonalZebra",
+      "label": "zymurgy zymurgy zymurgy zymurgy zymurgy zymurgy zymurgy zymurgy",
       "separator": " ",
       "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
       "words": 8
     },
     {
-      "label": "zonalZebra::zonalZebra::zonalZebra::zonalZebra::zonalZebra::zonalZebra::zonalZebra::zonalZebra",
+      "label": "zymurgy::zymurgy::zymurgy::zymurgy::zymurgy::zymurgy::zymurgy::zymurgy",
       "separator": "::",
       "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
       "words": 8
     },
     {
-      "label": "foggyBirch-lucidAcorn-tinyPearl-easyStool-plushBridge-equalHorse-foggyFence-ableAcorn",
+      "label": "acorn-anchor-birch-dolphin-meadow-pebble-river-willow",
       "separator": "-",
-      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "uuid": "01e3071e-14c2-42ce-8835-a0b4be8afc03",
       "words": 8
     },
     {
-      "label": "foggyBirch lucidAcorn tinyPearl easyStool plushBridge equalHorse foggyFence ableAcorn",
+      "label": "acorn anchor birch dolphin meadow pebble river willow",
       "separator": " ",
-      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "uuid": "01e3071e-14c2-42ce-8835-a0b4be8afc03",
       "words": 8
     },
     {
-      "label": "foggyBirch::lucidAcorn::tinyPearl::easyStool::plushBridge::equalHorse::foggyFence::ableAcorn",
+      "label": "acorn::anchor::birch::dolphin::meadow::pebble::river::willow",
       "separator": "::",
-      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "uuid": "01e3071e-14c2-42ce-8835-a0b4be8afc03",
       "words": 8
     },
     {
-      "label": "adeptPeach-cherryAcorn-blondDaisy-honestAcorn-littleAcorn-ableAcorn-ableAcorn-ableAnchor",
+      "label": "accumulation-captivator-beget-immunization-license-aah-aah-aardvark",
       "separator": "-",
       "uuid": "01992000-1234-7000-8000-000000000001",
       "words": 8
     },
     {
-      "label": "adeptPeach cherryAcorn blondDaisy honestAcorn littleAcorn ableAcorn ableAcorn ableAnchor",
+      "label": "accumulation captivator beget immunization license aah aah aardvark",
       "separator": " ",
       "uuid": "01992000-1234-7000-8000-000000000001",
       "words": 8
     },
     {
-      "label": "adeptPeach::cherryAcorn::blondDaisy::honestAcorn::littleAcorn::ableAcorn::ableAcorn::ableAnchor",
+      "label": "accumulation::captivator::beget::immunization::license::aah::aah::aardvark",
       "separator": "::",
       "uuid": "01992000-1234-7000-8000-000000000001",
       "words": 8

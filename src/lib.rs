@@ -6,19 +6,23 @@
 //! assert_eq!(decode(&encode(&id))?, id);
 //! # Ok::<(), readable_uuid::Error>(())
 //! ```
-use std::{fmt, sync::LazyLock};
+use std::{cmp::Ordering, fmt, sync::LazyLock};
 
 pub use uuid::Uuid;
-
-mod lists {
-    include!(concat!(env!("OUT_DIR"), "/lists.rs"));
-}
 
 /// Number of codewords in the fixed built-in codebook.
 pub const CODEBOOK_SIZE: usize = 65_536;
 
 /// Number of codewords used to represent one UUID.
 pub const CODEWORDS_PER_UUID: usize = 8;
+
+const MIN_CODEWORD_BYTES: usize = 3;
+const MAX_CODEWORD_BYTES: usize = 12;
+const CODEWORD_BYTES: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/wordlists/codewords.txt"
+));
+const CODEWORD_OFFSETS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/codeword-offsets.bin"));
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
@@ -86,15 +90,13 @@ impl<'a> ReadableUuid<'a> {
     pub fn encode_into(&self, id: &Uuid, output: &mut String) {
         output.reserve(self.max_len);
 
-        for (position, pair) in id.as_bytes().chunks_exact(2).enumerate() {
+        for (position, pair) in id.as_bytes().as_chunks::<2>().0.iter().enumerate() {
             if position != 0 {
                 output.push_str(self.separator);
             }
 
-            output.push_str(lists::MODIFIERS[usize::from(pair[0])]);
-            let noun = lists::NOUNS[usize::from(pair[1])];
-            output.push(char::from(noun.as_bytes()[0].to_ascii_uppercase()));
-            output.push_str(&noun[1..]);
+            let index = usize::from(u16::from_be_bytes([pair[0], pair[1]]));
+            output.push_str(codeword_at(index));
         }
     }
 
@@ -110,8 +112,8 @@ impl<'a> ReadableUuid<'a> {
 
         let mut bytes = [0_u8; 16];
         for (position, codeword) in phrase.split(self.separator).enumerate() {
-            let pair = decode_compound(codeword).ok_or(Error::UnknownCodeword(position))?;
-            bytes[position * 2..position * 2 + 2].copy_from_slice(&pair);
+            let value = decode_codeword(codeword).ok_or(Error::UnknownCodeword(position))?;
+            bytes[position * 2..position * 2 + 2].copy_from_slice(&value.to_be_bytes());
         }
 
         Ok(Uuid::from_bytes(bytes))
@@ -126,52 +128,48 @@ impl<'a> ReadableUuid<'a> {
     }
 }
 
-fn decode_compound(codeword: &str) -> Option<[u8; 2]> {
-    const MAX_COMPOUND_BYTES: usize = lists::MODIFIERS_MAX + lists::NOUNS_MAX;
+fn codeword_at(index: usize) -> &'static str {
+    let start = codeword_offset(index);
+    let end = codeword_offset(index + 1) - 1;
+    std::str::from_utf8(&CODEWORD_BYTES[start..end])
+        .expect("build script validated ASCII codewords")
+}
 
-    if codeword.len() > MAX_COMPOUND_BYTES
-        || !codeword.bytes().all(|byte| byte.is_ascii_alphabetic())
+fn codeword_offset(index: usize) -> usize {
+    let start = index * size_of::<u32>();
+    let bytes: [u8; 4] = CODEWORD_OFFSETS[start..start + 4]
+        .try_into()
+        .expect("build script generated every codeword offset");
+    u32::from_le_bytes(bytes) as usize
+}
+
+fn decode_codeword(input: &str) -> Option<u16> {
+    if !(MIN_CODEWORD_BYTES..=MAX_CODEWORD_BYTES).contains(&input.len())
+        || !input.bytes().all(|byte| byte.is_ascii_alphabetic())
     {
         return None;
     }
 
-    let mut lowercase = [0_u8; MAX_COMPOUND_BYTES];
-    for (output, byte) in lowercase.iter_mut().zip(codeword.bytes()) {
-        *output = byte.to_ascii_lowercase();
-    }
-    let normalized = std::str::from_utf8(&lowercase[..codeword.len()]).ok()?;
-
-    let lookup = |boundary| {
-        let modifier = lists::MODIFIERS
-            .binary_search(&&normalized[..boundary])
-            .ok()?;
-        let noun = lists::NOUNS.binary_search(&&normalized[boundary..]).ok()?;
-        Some([modifier as u8, noun as u8])
-    };
-
-    if let Some(boundary) = codeword.bytes().position(|byte| byte.is_ascii_uppercase())
-        && boundary != 0
-        && let Some(pair) = lookup(boundary)
-    {
-        return Some(pair);
-    }
-
-    let first_boundary = lists::MODIFIERS_MIN.max(codeword.len().saturating_sub(lists::NOUNS_MAX));
-    let last_boundary = lists::MODIFIERS_MAX.min(codeword.len().saturating_sub(lists::NOUNS_MIN));
-    if first_boundary > last_boundary {
-        return None;
-    }
-
-    let mut found = None;
-    for boundary in first_boundary..=last_boundary {
-        if let Some(pair) = lookup(boundary) {
-            if found.is_some() {
-                return None;
-            }
-            found = Some(pair);
+    let mut start = 0;
+    let mut end = CODEBOOK_SIZE;
+    while start < end {
+        let middle = start + (end - start) / 2;
+        match compare_codeword(codeword_at(middle), input) {
+            Ordering::Less => start = middle + 1,
+            Ordering::Greater => end = middle,
+            Ordering::Equal => return Some(middle as u16),
         }
     }
-    found
+    None
+}
+
+fn compare_codeword(canonical: &str, input: &str) -> Ordering {
+    canonical
+        .bytes()
+        .zip(input.bytes())
+        .map(|(left, right)| left.cmp(&right.to_ascii_lowercase()))
+        .find(|ordering| *ordering != Ordering::Equal)
+        .unwrap_or_else(|| canonical.len().cmp(&input.len()))
 }
 
 impl<'a> Builder<'a> {
@@ -191,7 +189,7 @@ impl<'a> Builder<'a> {
             return Err(Error::InvalidSeparator);
         }
 
-        let max_len = (lists::MODIFIERS_MAX + lists::NOUNS_MAX) * CODEWORDS_PER_UUID
+        let max_len = MAX_CODEWORD_BYTES * CODEWORDS_PER_UUID
             + self.separator.len() * (CODEWORDS_PER_UUID - 1);
 
         Ok(ReadableUuid {
