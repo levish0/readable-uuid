@@ -59,6 +59,26 @@ const label = readableUuid("550e8400-e29b-41d4-a716-446655440000", {
 
 Also exports `readableUuidBatch` and `wordSets`. See [Node.js details](bindings/node/README.npm.md).
 
+## Performance
+
+Median formatting time; lower is better.
+
+| Implementation  |     Median |
+| --------------- | ---------: |
+| `readable-uuid` | **395 ns** |
+| `wordhash`      |   1,187 ns |
+| `humanhash`     |   1,667 ns |
+
+```mermaid
+xychart horizontal
+    title "Median formatting time (lower is better)"
+    x-axis ["readable-uuid", "wordhash", "humanhash"]
+    y-axis "ns" 0 --> 1800
+    bar [395, 1187, 1667]
+```
+
+See [benchmark methodology and full results](docs/performance.md).
+
 ## Development
 
 ```sh
