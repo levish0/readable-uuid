@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T15:32:13.402Z",
+  "generatedAt": "2026-09-19T15:34:54.838Z",
   "node": "v24.12.0",
   "platform": "win32",
   "arch": "x64",
@@ -40,44 +40,44 @@
     {
       "name": "readable-uuid",
       "direction": "encode",
-      "medianNs": 897,
-      "p10Ns": 791,
-      "p90Ns": 1188
+      "medianNs": 823,
+      "p10Ns": 751,
+      "p90Ns": 1017
     },
     {
       "name": "readable-uuid",
       "direction": "decode",
-      "medianNs": 3556,
-      "p10Ns": 3118,
-      "p90Ns": 4134
+      "medianNs": 3410,
+      "p10Ns": 3016,
+      "p90Ns": 3818
     },
     {
       "name": "niceware",
       "direction": "encode",
-      "medianNs": 1535,
-      "p10Ns": 1310,
-      "p90Ns": 2051
+      "medianNs": 1333,
+      "p10Ns": 1147,
+      "p90Ns": 1832
     },
     {
       "name": "niceware",
       "direction": "decode",
-      "medianNs": 4059,
+      "medianNs": 3646,
       "p10Ns": 3402,
-      "p90Ns": 5178
+      "p90Ns": 3805
     },
     {
       "name": "@scure/bip39",
       "direction": "encode",
-      "medianNs": 101166,
-      "p10Ns": 95293,
-      "p90Ns": 115409
+      "medianNs": 98138,
+      "p10Ns": 88566,
+      "p90Ns": 113306
     },
     {
       "name": "@scure/bip39",
       "direction": "decode",
-      "medianNs": 116209,
-      "p10Ns": 110806,
-      "p90Ns": 131290
+      "medianNs": 114262,
+      "p10Ns": 98396,
+      "p90Ns": 128877
     }
   ],
   "batch": {
@@ -87,15 +87,15 @@
     "results": [
       {
         "direction": "encode",
-        "medianNs": 690,
-        "p10Ns": 550,
-        "p90Ns": 742
+        "medianNs": 502,
+        "p10Ns": 460,
+        "p90Ns": 620
       },
       {
         "direction": "decode",
-        "medianNs": 3533,
-        "p10Ns": 3194,
-        "p90Ns": 3823
+        "medianNs": 2858,
+        "p10Ns": 2707,
+        "p90Ns": 3544
       }
     ]
   },
