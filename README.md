@@ -30,7 +30,7 @@ formatter.write_into(&id, &mut buffer); // appends; clear to reuse
 ## Word sets
 
 | Set          | Words | Characters per word | Bits per word |
-| ------------ | ----: | ------------------- | ------------: |
+|--------------|------:|---------------------|--------------:|
 | `english-v1` |   553 | 3–9                 |          9.11 |
 | `short-v1`   |   191 | 3–4                 |          7.58 |
 | `nature-v1`  |   280 | 3–9                 |          8.13 |
