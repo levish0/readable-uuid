@@ -1,5 +1,4 @@
 node_modules/
 pkg-npm/
 artifacts/
-release/
 pnpm-lock.yaml

@@ -1,266 +1,129 @@
 use crate::{Result, capture, root, run, version};
-use serde_json::{Map, Value, json};
+use serde_json::{Value, json};
 use std::{
     fs,
     path::{Path, PathBuf},
     process::Command,
 };
 
-const PACKAGE_FILES: [&str; 4] = ["index.js", "index.d.ts", "README.md", "LICENSE"];
-
-struct Artifact {
-    platform: &'static str,
-    filename: String,
-    path: PathBuf,
-}
+const PACKAGE_FILES: [&str; 7] = [
+    "api.js",
+    "browser.js",
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE",
+    "package.json",
+];
+const WASM_FILES: [&str; 4] = [
+    "readable_uuid_wasm.js",
+    "readable_uuid_wasm.d.ts",
+    "readable_uuid_wasm_bg.wasm",
+    "readable_uuid_wasm_bg.wasm.d.ts",
+];
 
 pub fn build(args: &[String]) -> Result {
-    let target = build_target(args)?;
-    let platform = platform_suffix(&target)?;
-    let mut package = read_json(&binding_dir().join("package.template.json"))?;
-
-    if !configured_targets(&package)?
-        .iter()
-        .any(|value| value == &target)
-    {
-        return Err("Target not listed in package template".into());
+    if !args.is_empty() {
+        return Err("npm-build does not accept arguments".into());
     }
 
-    let package_version = version()?;
-    package["version"] = json!(package_version);
+    let output = output_dir();
+    if output.exists() {
+        fs::remove_dir_all(&output)?;
+    }
 
-    fs::create_dir_all(output_dir())?;
-    write_json(&output_dir().join("package.json"), &package)?;
-    build_native_binding(&target)?;
+    let wasm_output = output.join("wasm");
+    fs::create_dir_all(&wasm_output)?;
 
+    run(Command::new("wasm-pack")
+        .current_dir(binding_dir())
+        .args([
+            "build",
+            "--target",
+            "web",
+            "--mode",
+            "no-install",
+            "--release",
+            "--no-pack",
+        ])
+        .arg("--out-dir")
+        .arg(&wasm_output))?;
+
+    for generated in [".gitignore", "package.json", "README.md"] {
+        let path = wasm_output.join(generated);
+        if path.exists() {
+            fs::remove_file(path)?;
+        }
+    }
+
+    for file in ["api.js", "browser.js", "index.js", "index.d.ts"] {
+        fs::copy(binding_dir().join("npm").join(file), output.join(file))?;
+    }
     fs::copy(
         binding_dir().join("README.npm.md"),
-        output_dir().join("README.md"),
+        output.join("README.md"),
     )?;
-    fs::copy(root().join("LICENSE"), output_dir().join("LICENSE"))?;
+    fs::copy(root().join("LICENSE"), output.join("LICENSE"))?;
 
-    let artifact_name = format!("readable-uuid.{platform}");
-    let binary = output_dir().join(format!("{artifact_name}.node"));
-    require_nonempty_file(&binary)?;
+    let mut package = read_json(&binding_dir().join("package.template.json"))?;
+    package["version"] = json!(version()?);
+    write_json(&output.join("package.json"), &package)?;
 
-    let provenance = json!({
-        "version": package_version,
-        "revision": git_revision()?,
-        "target": target,
-    });
-    write_json(
-        &output_dir().join(format!("{artifact_name}.json")),
-        &provenance,
-    )?;
-
-    println!("Generated {}", output_dir().display());
+    validate_generated_package()?;
+    println!("Generated {}", output.display());
     Ok(())
 }
 
 pub fn pack() -> Result {
-    validate_generated_package()?;
-    pack_directory(&output_dir(), "readable-uuid-local.tgz")
+    build(&[])?;
+    pack_directory(&output_dir(), "readable-uuid.tgz")
 }
 
 pub fn publish(dry_run: bool) -> Result {
-    let package = validate_generated_package()?;
-    let artifacts = validate_artifacts(&package)?;
-
     if !dry_run {
         require_clean_worktree()?;
     }
 
-    let version = package["version"]
-        .as_str()
-        .ok_or("Missing package version")?;
-    let stage = binding_dir().join("release").join(version);
-    let mut directories = Vec::new();
-    let mut optional_dependencies = Map::new();
+    build(&[])?;
+    validate_generated_package()?;
 
-    for artifact in &artifacts {
-        let (directory, package_name) = stage_platform_package(&stage, &package, artifact)?;
-        optional_dependencies.insert(package_name, json!(version));
-        directories.push(directory);
+    let mut command = pnpm(&output_dir());
+    command.args([
+        "publish",
+        "--access",
+        "public",
+        "--ignore-scripts",
+        "--no-git-checks",
+    ]);
+    if dry_run {
+        command.arg("--dry-run");
     }
-
-    directories.push(stage_loader_package(
-        &stage,
-        &package,
-        optional_dependencies,
-    )?);
-
-    // Pack every package before the first upload. The root loader is published last.
-    for directory in &directories {
-        pack_directory(directory, "package.tgz")?;
-    }
+    run(&mut command)?;
 
     if dry_run {
-        println!("Release packages packed; nothing published.");
-        return Ok(());
+        println!("npm package checked; nothing published.");
+    } else {
+        println!("Published npm package.");
     }
-
-    for directory in &directories {
-        run(pnpm(directory).args([
-            "publish",
-            "--access",
-            "public",
-            "--ignore-scripts",
-            "--no-git-checks",
-        ]))?;
-    }
-
-    println!("Published platform packages and root package.");
     Ok(())
-}
-
-fn build_target(args: &[String]) -> Result<String> {
-    match args {
-        [] => {
-            let compiler = capture(Command::new("rustc").arg("-vV"))?;
-            compiler
-                .lines()
-                .find_map(|line| line.strip_prefix("host: "))
-                .map(str::to_owned)
-                .ok_or_else(|| "Missing rustc host".into())
-        }
-        [flag, target] if flag == "--target" => Ok(target.clone()),
-        _ => Err("Expected npm-build [--target <triple>]".into()),
-    }
-}
-
-fn build_native_binding(target: &str) -> Result {
-    let cli = binding_dir().join("node_modules/@napi-rs/cli/dist/cli.js");
-    if !cli.is_file() {
-        return Err("Missing NAPI-RS CLI; run just js-install".into());
-    }
-
-    run(Command::new("node")
-        .current_dir(binding_dir())
-        .arg(cli)
-        .args([
-            "build",
-            "--manifest-path",
-            "Cargo.toml",
-            "--package-json-path",
-            "pkg-npm/package.json",
-            "--output-dir",
-            "pkg-npm",
-            "--platform",
-            "--release",
-            "--target",
-            target,
-        ]))
 }
 
 fn validate_generated_package() -> Result<Value> {
     let package = read_json(&output_dir().join("package.json"))?;
     let template = read_json(&binding_dir().join("package.template.json"))?;
 
-    if package["version"] != version()? || package["napi"] != template["napi"] {
+    if package["version"] != version()? || package["exports"] != template["exports"] {
         return Err("Generated package is stale; run just npm-build".into());
     }
 
     for file in PACKAGE_FILES {
         require_nonempty_file(&output_dir().join(file))?;
     }
+    for file in WASM_FILES {
+        require_nonempty_file(&output_dir().join("wasm").join(file))?;
+    }
 
     Ok(package)
-}
-
-fn validate_artifacts(package: &Value) -> Result<Vec<Artifact>> {
-    let revision = git_revision()?;
-    let mut artifacts = Vec::new();
-
-    for target in configured_targets(package)? {
-        let target = target.as_str().ok_or("Invalid target")?;
-        let platform = platform_suffix(target)?;
-        let filename = format!("readable-uuid.{platform}.node");
-        let path = binding_dir().join("artifacts").join(&filename);
-
-        require_nonempty_file(&path)?;
-        let provenance = read_json(&path.with_extension("json"))?;
-        if provenance["version"] != package["version"]
-            || provenance["revision"] != revision
-            || provenance["target"] != target
-        {
-            return Err(format!("Artifact version/revision/target mismatch: {filename}").into());
-        }
-
-        artifacts.push(Artifact {
-            platform,
-            filename,
-            path,
-        });
-    }
-
-    Ok(artifacts)
-}
-
-fn stage_platform_package(
-    stage: &Path,
-    package: &Value,
-    artifact: &Artifact,
-) -> Result<(PathBuf, String)> {
-    let directory = stage.join(artifact.platform);
-    let package_name = format!(
-        "{}-{}",
-        package["name"].as_str().ok_or("Missing package name")?,
-        artifact.platform,
-    );
-    let mut parts = artifact.platform.split('-');
-    let os = parts.next().ok_or("Missing platform OS")?;
-    let cpu = parts.next().ok_or("Missing platform CPU")?;
-
-    let mut metadata = json!({
-        "name": package_name,
-        "version": package["version"],
-        "description": package["description"],
-        "license": package["license"],
-        "repository": package["repository"],
-        "engines": package["engines"],
-        "main": artifact.filename,
-        "files": [artifact.filename, "LICENSE"],
-        "os": [os],
-        "cpu": [cpu],
-    });
-    if os == "linux" {
-        metadata["libc"] = json!(["glibc"]);
-    }
-
-    fs::create_dir_all(&directory)?;
-    write_json(&directory.join("package.json"), &metadata)?;
-    fs::copy(&artifact.path, directory.join(&artifact.filename))?;
-    fs::copy(root().join("LICENSE"), directory.join("LICENSE"))?;
-
-    Ok((directory, package_name))
-}
-
-fn stage_loader_package(
-    stage: &Path,
-    package: &Value,
-    optional_dependencies: Map<String, Value>,
-) -> Result<PathBuf> {
-    let directory = stage.join("main");
-    let metadata = json!({
-        "name": package["name"],
-        "version": package["version"],
-        "description": package["description"],
-        "license": package["license"],
-        "repository": package["repository"],
-        "engines": package["engines"],
-        "main": package["main"],
-        "types": package["types"],
-        "files": PACKAGE_FILES,
-        "optionalDependencies": optional_dependencies,
-    });
-
-    fs::create_dir_all(&directory)?;
-    for file in PACKAGE_FILES {
-        fs::copy(output_dir().join(file), directory.join(file))?;
-    }
-    write_json(&directory.join("package.json"), &metadata)?;
-
-    Ok(directory)
 }
 
 fn pack_directory(directory: &Path, filename: &str) -> Result {
@@ -269,7 +132,7 @@ fn pack_directory(directory: &Path, filename: &str) -> Result {
 
 fn require_nonempty_file(path: &Path) -> Result {
     if !path.is_file() || fs::metadata(path)?.len() == 0 {
-        return Err(format!("Missing or empty artifact: {}", path.display()).into());
+        return Err(format!("Missing or empty package file: {}", path.display()).into());
     }
     Ok(())
 }
@@ -286,25 +149,8 @@ fn require_clean_worktree() -> Result {
     Ok(())
 }
 
-fn configured_targets(package: &Value) -> Result<&Vec<Value>> {
-    package["napi"]["targets"]
-        .as_array()
-        .ok_or_else(|| "Missing napi.targets".into())
-}
-
-fn platform_suffix(target: &str) -> Result<&'static str> {
-    match target {
-        "x86_64-pc-windows-msvc" => Ok("win32-x64-msvc"),
-        "x86_64-unknown-linux-gnu" => Ok("linux-x64-gnu"),
-        "aarch64-unknown-linux-gnu" => Ok("linux-arm64-gnu"),
-        "aarch64-apple-darwin" => Ok("darwin-arm64"),
-        "x86_64-apple-darwin" => Ok("darwin-x64"),
-        _ => Err(format!("Unsupported npm target: {target}").into()),
-    }
-}
-
 fn binding_dir() -> PathBuf {
-    root().join("bindings/node")
+    root().join("bindings/wasm")
 }
 
 fn output_dir() -> PathBuf {
@@ -316,14 +162,6 @@ fn pnpm(directory: &Path) -> Command {
     let mut command = Command::new(executable);
     command.current_dir(directory);
     command
-}
-
-fn git_revision() -> Result<String> {
-    capture(
-        Command::new("git")
-            .current_dir(root())
-            .args(["rev-parse", "HEAD"]),
-    )
 }
 
 fn read_json(path: &Path) -> Result<Value> {

@@ -1,6 +1,6 @@
 [package]
 name = "readable-uuid"
-version = "0.1.0"
+version.workspace = true
 edition = "2024"
 authors = ["Levi Laine <levi.laine.me@gmail.com>"]
 repository = "https://github.com/levish0/readable-uuid"
@@ -12,8 +12,11 @@ categories = ["encoding"]
 exclude = [".github", ".cargo", "justfile", "AGENTS.md", "memory"]
 
 [workspace]
-members = ["xtask", "bindings/node"]
+members = ["xtask", "bindings/wasm"]
 default-members = [".", "xtask"]
+
+[workspace.package]
+version = "0.1.0"
 
 [dependencies]
 uuid = "1.26.1"

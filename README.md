@@ -1,6 +1,7 @@
 # readable-uuid
 
-Lossless UUIDs as eight memorable English codewords. Rust core with Node.js bindings.
+Lossless UUIDs as eight memorable English codewords for Rust, Node.js and
+browsers.
 
 ```text
 01e3071e-14c2-42ce-8835-a0b4be8afc03
@@ -35,7 +36,7 @@ let mut output = String::new();
 codec.encode_into(&id, &mut output);
 ```
 
-## Node.js
+## JavaScript
 
 ```ts
 import { decode, encode } from 'readable-uuid';
@@ -45,6 +46,8 @@ const uuid = decode(phrase);
 ```
 
 Also exports `encodeBatch` and `decodeBatch`.
+
+The npm package uses the same WebAssembly module in Node.js and browsers.
 
 ## Format
 
@@ -80,7 +83,7 @@ just npm-pack
 just release-dry
 ```
 
-The root Cargo version is shared by crates.io and npm releases. See
+The root Cargo version is shared by crates.io and the WebAssembly npm package. See
 [release instructions](docs/releasing.md).
 
 MIT licensed.

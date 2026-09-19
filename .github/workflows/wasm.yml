@@ -1,0 +1,30 @@
+name: wasm
+on: [push, pull_request]
+jobs:
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: bindings/wasm/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: bindings/wasm/.nvmrc
+          cache: pnpm
+          cache-dependency-path: bindings/wasm/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: bindings/wasm
+      - run: pnpm run check
+        working-directory: bindings/wasm
+      - run: cargo xtask npm-build
+      - run: pnpm run test
+        working-directory: bindings/wasm
+      - run: cargo xtask npm-pack

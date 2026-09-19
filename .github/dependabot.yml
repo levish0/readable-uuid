@@ -1,12 +1,12 @@
 version: 2
 updates:
-  # pnpm uses the npm ecosystem; only the binding has a JS manifest and lockfile.
+  # pnpm uses the npm ecosystem; only the WASM package has a JS manifest and lockfile.
   - package-ecosystem: "npm"
-    directory: "/bindings/node"
+    directory: "/bindings/wasm"
     schedule:
       interval: "weekly"
 
-  # The root Cargo workspace covers the core, Node binding and xtask.
+  # The root Cargo workspace covers the core, WASM binding and xtask.
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:

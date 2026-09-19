@@ -1,6 +1,6 @@
 # readable-uuid
 
-Lossless UUIDs as eight memorable English codewords, backed by Rust.
+Lossless UUIDs as eight memorable English codewords, compiled from Rust to WebAssembly.
 
 ```ts
 import { decode, decodeBatch, encode, encodeBatch } from 'readable-uuid';
@@ -23,6 +23,6 @@ const phrase = encode(uuid, { separator: ' ' });
 
 There is no checksum. A different valid codeword can decode to a different UUID.
 
-Supports Node.js 20+ on the published native targets. See the
-[repository](https://github.com/levish0/readable-uuid) for the Rust API, format
-specification and release targets.
+The same package works in Node.js 20+ and modern browsers. See the
+[repository](https://github.com/levish0/readable-uuid) for the Rust API and
+format specification.

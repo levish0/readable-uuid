@@ -1,0 +1,27 @@
+{
+  "name": "readable-uuid",
+  "description": "Reversible English word encoding for UUIDs",
+  "license": "MIT",
+  "repository": "https://github.com/levish0/readable-uuid",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./browser.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "node": "./index.js",
+      "browser": "./browser.js",
+      "default": "./browser.js"
+    }
+  },
+  "files": ["api.js", "browser.js", "index.js", "index.d.ts", "wasm", "README.md", "LICENSE"],
+  "sideEffects": ["./browser.js", "./index.js"],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": ["uuid", "human-readable", "encoding", "mnemonic", "wasm"],
+  "publishConfig": {
+    "access": "public"
+  }
+}

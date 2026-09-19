@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["bench/**/*.ts", "test/**/*.ts", "types/**/*.d.ts"]
+  "include": ["bench/**/*.ts", "npm/**/*.d.ts", "test/**/*.ts", "types/**/*.d.ts"]
 }

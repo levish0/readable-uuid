@@ -1,5 +1,5 @@
 {
-  "name": "readable-uuid-dev",
+  "name": "readable-uuid-wasm-dev",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.5.0",
@@ -20,7 +20,6 @@
     "release": "cargo xtask npm-publish"
   },
   "devDependencies": {
-    "@napi-rs/cli": "3.10.4",
     "prettier": "3.9.8",
     "eslint": "10.11.0",
     "@eslint/js": "10.0.1",

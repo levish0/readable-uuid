@@ -82,14 +82,14 @@ fn execute() -> Result {
     match args.first().map(String::as_str).unwrap_or("help") {
         "publish" | "publish-dry" => publish_crate(args[0] == "publish-dry", rest),
         "release" | "release-dry" => release(args[0] == "release-dry", rest),
-        "npm-build" => npm::build(rest),
+        "npm-build" if rest.is_empty() => npm::build(rest),
         "npm-pack" if rest.is_empty() => npm::pack(),
         "npm-publish" if rest.is_empty() || rest == ["--dry-run"] => npm::publish(!rest.is_empty()),
         "help" => {
             println!(concat!(
                 "cargo xtask publish[-dry] [cargo flags]\n",
                 "cargo xtask release[-dry] [cargo flags]\n",
-                "cargo xtask npm-build [--target <triple>]\n",
+                "cargo xtask npm-build\n",
                 "cargo xtask npm-pack\n",
                 "cargo xtask npm-publish [--dry-run]",
             ));

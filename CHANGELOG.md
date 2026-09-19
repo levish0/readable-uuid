@@ -9,5 +9,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Encode every UUID losslessly as eight codewords and decode it back.
 - Encode with one fixed, reviewed 65,536-word codebook.
-- Provide Rust and Node.js single and batch APIs.
+- Provide Rust and WebAssembly single and batch APIs for Node.js and browsers.
 - Compare both directions with Niceware and BIP39.

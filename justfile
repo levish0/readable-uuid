@@ -31,23 +31,23 @@ release:
     cargo xtask release
 
 js-install:
-    pnpm --dir bindings/node install --frozen-lockfile
+    pnpm --dir bindings/wasm install --frozen-lockfile
 
 js-format:
-    pnpm --dir bindings/node run fmt
+    pnpm --dir bindings/wasm run fmt
 
 js-check:
-    pnpm --dir bindings/node run check
-    cargo clippy -p readable-uuid-node --all-targets -- -D warnings
+    pnpm --dir bindings/wasm run check
+    cargo clippy -p readable-uuid-wasm --target wasm32-unknown-unknown -- -D warnings
 
 npm-build:
     cargo xtask npm-build
 
 npm-test:
-    pnpm --dir bindings/node run test
+    pnpm --dir bindings/wasm run test
 
 npm-bench:
-    pnpm --dir bindings/node run bench
+    pnpm --dir bindings/wasm run bench
 
 npm-pack:
     cargo xtask npm-pack

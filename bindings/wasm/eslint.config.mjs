@@ -4,14 +4,7 @@ import tseslint from 'typescript-eslint';
 
 export default [
   {
-    ignores: [
-      'target/**',
-      '**/node_modules/**',
-      '**/pkg-npm/**',
-      '**/artifacts/**',
-      '**/release/**',
-      '**/npm/**',
-    ],
+    ignores: ['target/**', '**/node_modules/**', '**/pkg-npm/**', '**/artifacts/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

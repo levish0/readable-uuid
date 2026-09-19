@@ -1,0 +1,18 @@
+[package]
+name = "readable-uuid-wasm"
+version.workspace = true
+edition = "2024"
+publish = false
+repository = "https://github.com/levish0/readable-uuid"
+description = "WebAssembly bindings for readable-uuid"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+readable-uuid = { path = "../.." }
+js-sys = "0.3.105"
+wasm-bindgen = "0.2.128"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
