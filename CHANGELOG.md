@@ -1,7 +1,6 @@
-# Initial release
+# Changelog
 
-- Extensible word-set enumeration and bounded custom words (64 bytes each).
-- Built-in dictionary validation and frozen output/list compatibility fixtures.
-- BLAKE3 UUID aliases with frozen English, short and nature dictionaries.
-- Borrowed custom dictionaries, configurable length/separator and buffer reuse.
-- Rust and Node.js APIs with shared compatibility vectors and benchmarks.
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
