@@ -20,18 +20,12 @@ importers:
       globals:
         specifier: 17.12.0
         version: 17.12.0
-      human-id:
-        specifier: 4.2.1
-        version: 4.2.1
       humanhash:
         specifier: 1.0.4
         version: 1.0.4
       prettier:
         specifier: 3.9.8
         version: 3.9.8
-      unique-names-generator:
-        specifier: 4.7.1
-        version: 4.7.1
       wordhash:
         specifier: 1.0.1
         version: 1.0.1
@@ -857,10 +851,6 @@ packages:
   hookified@2.2.0:
     resolution: {integrity: sha512-p/LgFzRN5FeoD3DLS6bkUapeye6E4SI6yJs6KetENd18S+FBthqYq2amJUWpt5z0EQwwHemidjY5OqJGEKm5uA==}
 
-  human-id@4.2.1:
-    resolution: {integrity: sha512-zPGsiS+dWoTZtZ4AtpA9Y+BdSFSNWvnouNlWNoUFyAM6xHOHmdCvqO3k8AIbdamCOv4gUFUVNPf6rJFfc4UiJw==}
-    hasBin: true
-
   humanhash@1.0.4:
     resolution: {integrity: sha512-fxOhEl/Ezv7PobYOTomDmQKWaSC0hk0mzl5et5McPtr+6LRBP7LYoeFLPjKW6xOSGmMNLj50BufrrgX+M5EvEA==}
 
@@ -1000,10 +990,6 @@ packages:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
-
-  unique-names-generator@4.7.1:
-    resolution: {integrity: sha512-lMx9dX+KRmG8sq6gulYYpKWZc9RlGsgBR6aoO8Qsm3qvkSJ+3rAymr+TnV8EDMrIrwuFJ4kruzMWM/OpYzPoow==}
-    engines: {node: '>=8'}
 
   universal-user-agent@7.0.3:
     resolution: {integrity: sha512-TmnEAEAsBJVZM/AADELsK76llnwcf9vMKuPz8JflO1frO8Lchitr0fNaN9d+Ap0BjKtqWqd/J17qeDnXh8CL2A==}
@@ -1735,8 +1721,6 @@ snapshots:
 
   hookified@2.2.0: {}
 
-  human-id@4.2.1: {}
-
   humanhash@1.0.4:
     dependencies:
       uuid: 3.4.0
@@ -1845,8 +1829,6 @@ snapshots:
       prelude-ls: 1.2.1
 
   typescript@6.0.3: {}
-
-  unique-names-generator@4.7.1: {}
 
   universal-user-agent@7.0.3: {}
 
