@@ -36,7 +36,10 @@ for uniqueness, lookups, authentication and authorization.
 
 Separators are nonempty ASCII punctuation/spaces, and words lowercase ASCII,
 so distinct word sequences cannot collapse through ambiguous concatenation.
-Counts and separators are bounded to avoid accidentally allocating huge labels.
+Each dictionary contains 2–65,536 entries of 1–64 bytes each. These limits apply
+to built-ins at build time and custom lists at formatter construction. Counts,
+word lengths and separators are bounded to avoid excessive output reservation.
+See [custom dictionaries](custom-dictionaries.md) for lifetime and stability rules.
 
 `tests/vectors.json` contains frozen outputs and list fingerprints. Tests must
 compare against it, not regenerate it during normal checks. `examples/vectors.rs`

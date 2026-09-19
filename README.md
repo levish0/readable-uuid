@@ -35,10 +35,10 @@ formatter.write_into(&id, &mut buffer); // appends; clear to reuse
 | `short-v1`   |   191 | 3–4                 |          7.58 |
 | `nature-v1`  |   280 | 3–9                 |          8.13 |
 
-Use `.custom_words(&["red", "green", "blue"])` for your own ordered list.
-Custom lists must contain 2–65,536 unique, nonempty lowercase ASCII words.
+Built-in sets work out of the box; no custom dictionary is required.
 Options are validated once when building the formatter. Word count: 1–64;
 separator: 1–32 ASCII punctuation or space characters.
+For service-specific vocabularies, see [custom dictionaries](docs/custom-dictionaries.md).
 
 Labels are **lossy and may collide**: retain the original UUID as the identifier.
 Four default words represent about 36.45 bits of combinations, not 128 bits.
