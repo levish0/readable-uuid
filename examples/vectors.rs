@@ -18,7 +18,7 @@ fn main() {
             "550e8400-e29b-41d4-a716-446655440000",
             "01992000-1234-7000-8000-000000000001",
         ] {
-            for words in [1, 4, 6, 17, 64] {
+            for words in [1, 4, 6, 16, 17, 64] {
                 let separator = if words == 6 { " " } else { "-" };
                 let label = ReadableUuid::builder()
                     .word_set(set)

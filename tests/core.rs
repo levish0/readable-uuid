@@ -1,4 +1,6 @@
-use readable_uuid::{Error, MAX_WORDS, ReadableUuid, Uuid, WordSet};
+use readable_uuid::{
+    Error, MAX_DICTIONARY_WORDS, MAX_WORD_BYTES, MAX_WORDS, ReadableUuid, Uuid, WordSet,
+};
 
 #[test]
 fn dictionaries_are_valid_and_short_is_short() {
@@ -8,6 +10,10 @@ fn dictionaries_are_valid_and_short_is_short() {
             .build()
             .unwrap();
         assert!(set.words().windows(2).all(|w| w[0] < w[1]));
+        assert_eq!(
+            set.max_word_len(),
+            set.words().iter().map(|word| word.len()).max().unwrap()
+        );
     }
     assert!(WordSet::ShortV1.words().iter().all(|w| w.len() <= 4));
 }
@@ -93,7 +99,7 @@ fn invalid_configuration() {
             .unwrap_err(),
         Error::DuplicateWord(1)
     );
-    for separator in ["", "original_words", "\n"] {
+    for separator in ["", "a", "\n"] {
         assert_eq!(
             ReadableUuid::builder()
                 .separator(separator)
@@ -102,6 +108,63 @@ fn invalid_configuration() {
             Error::InvalidSeparator
         );
     }
+}
+
+#[test]
+fn custom_word_length_boundary() {
+    let longest_word = "a".repeat(MAX_WORD_BYTES);
+    let words = [longest_word.as_str(), "bee"];
+    let formatter = ReadableUuid::builder()
+        .custom_words(&words)
+        .words(MAX_WORDS)
+        .build()
+        .unwrap();
+    let label = formatter.format(&Uuid::nil());
+    assert_eq!(label.split('-').count(), MAX_WORDS);
+    assert!(label.split('-').all(|word| words.contains(&word)));
+
+    for length in [MAX_WORD_BYTES + 1, 1024 * 1024] {
+        let oversized_word = "a".repeat(length);
+        let words = ["bee", oversized_word.as_str()];
+        assert_eq!(
+            ReadableUuid::builder()
+                .custom_words(&words)
+                .build()
+                .unwrap_err(),
+            Error::WordTooLong(1),
+        );
+    }
+}
+
+#[test]
+fn custom_dictionary_size_boundary() {
+    // Four base-26 letters provide distinct valid words across the size limit.
+    let owned_words: Vec<String> = (0..=MAX_DICTIONARY_WORDS)
+        .map(|mut index| {
+            let mut letters = [b'a'; 4];
+            for letter in &mut letters {
+                *letter += (index % 26) as u8;
+                index /= 26;
+            }
+            String::from_utf8(letters.to_vec()).unwrap()
+        })
+        .collect();
+    let dictionary: Vec<&str> = owned_words.iter().map(String::as_str).collect();
+
+    let formatter = ReadableUuid::builder()
+        .custom_words(&dictionary[..MAX_DICTIONARY_WORDS])
+        .build()
+        .unwrap();
+    assert_eq!(formatter.dictionary_len(), MAX_DICTIONARY_WORDS);
+    assert_eq!(formatter.combination_bits(), 64.0);
+    assert_eq!(formatter.format(&Uuid::nil()).split('-').count(), 4);
+    assert_eq!(
+        ReadableUuid::builder()
+            .custom_words(&dictionary)
+            .build()
+            .unwrap_err(),
+        Error::InvalidDictionarySize,
+    );
 }
 
 #[test]

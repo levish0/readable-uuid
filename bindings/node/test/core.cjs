@@ -22,6 +22,7 @@ test('errors, custom dictionaries and metadata', () => {
     { wordSet: 'missing' },
     { customWords: [] },
     { customWords: ['a', 'a'] },
+    { customWords: ['a'.repeat(65), 'bee'] },
     { separator: '' },
     { wordSet: 'english-v1', customWords: ['a', 'b'] },
   ]) {
@@ -34,4 +35,16 @@ test('errors, custom dictionaries and metadata', () => {
   const label = readableUuid('00000000-0000-0000-0000-000000000000', options);
   assert.match(label, /^(red|green|blue)(-(red|green|blue)){5}$/);
   assert.equal(wordSets().length, 3);
+});
+
+test('custom word length boundary', () => {
+  const uuid = '00000000-0000-0000-0000-000000000000';
+  const customWords = ['a'.repeat(64), 'bee'];
+  const label = readableUuid(uuid, { customWords, words: 64 });
+  assert.equal(label.split('-').length, 64);
+  assert.ok(label.split('-').every((word) => customWords.includes(word)));
+  assert.throws(
+    () => readableUuid(uuid, { customWords: ['bee', 'a'.repeat(65)] }),
+    /word 1 exceeds 64 bytes/,
+  );
 });

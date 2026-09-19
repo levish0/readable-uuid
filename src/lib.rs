@@ -82,7 +82,10 @@ impl fmt::Display for Error {
         match self {
             Self::InvalidWordCount => write!(f, "word count must be 1..={MAX_WORDS}"),
             Self::InvalidDictionarySize => {
-                write!(f, "dictionary must contain 2..={MAX_DICTIONARY_WORDS} words")
+                write!(
+                    f,
+                    "dictionary must contain 2..={MAX_DICTIONARY_WORDS} words"
+                )
             }
             Self::InvalidWord(i) => write!(f, "word {i} must contain only lowercase ASCII letters"),
             Self::WordTooLong(index) => write!(f, "word {index} exceeds {MAX_WORD_BYTES} bytes"),
