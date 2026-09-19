@@ -1,50 +1,82 @@
 use std::{collections::HashSet, env, fs, path::PathBuf};
 
-#[path = "src/limits.rs"]
-mod limits;
+const COMPONENT_COUNT: usize = 256;
+const MIN_COMPONENT_BYTES: usize = 3;
+const MAX_COMPONENT_BYTES: usize = 7;
 
 fn main() {
-    println!("cargo:rerun-if-changed=src/limits.rs");
+    println!("cargo:rerun-if-changed=wordlists/modifiers.txt");
+    println!("cargo:rerun-if-changed=wordlists/nouns.txt");
 
-    let mut output = String::new();
-    for (name, file) in [
-        ("ENGLISH", "english-v1"),
-        ("SHORT", "short-v1"),
-        ("NATURE", "nature-v1"),
-    ] {
-        let path = format!("wordlists/{file}.txt");
-        println!("cargo:rerun-if-changed={path}");
-        let text = fs::read_to_string(&path).expect("read built-in dictionary");
-        let words: Vec<_> = text.lines().collect();
-        assert!(
-            (2..=limits::MAX_DICTIONARY_WORDS).contains(&words.len()),
-            "{path}: dictionary size must be 2..={}",
-            limits::MAX_DICTIONARY_WORDS,
-        );
+    let modifiers = read_components("wordlists/modifiers.txt");
+    let nouns = read_components("wordlists/nouns.txt");
+    validate_compounds(&modifiers, &nouns);
 
-        let mut seen = HashSet::with_capacity(words.len());
-        for (index, word) in words.iter().enumerate() {
-            assert!(
-                !word.is_empty() && word.bytes().all(|byte| byte.is_ascii_lowercase()),
-                "{path}: word {index} must contain only lowercase ASCII letters",
-            );
-            assert!(
-                word.len() <= limits::MAX_WORD_BYTES,
-                "{path}: word {index} exceeds {} bytes",
-                limits::MAX_WORD_BYTES,
-            );
-            assert!(seen.insert(word), "{path}: duplicate word at index {index}");
-        }
+    let output = format!(
+        "pub static MODIFIERS: &[&str; {COMPONENT_COUNT}] = &{modifiers:?};\n\
+         pub static NOUNS: &[&str; {COMPONENT_COUNT}] = &{nouns:?};\n\
+         pub const MODIFIERS_MIN: usize = {};\n\
+         pub const MODIFIERS_MAX: usize = {};\n\
+         pub const NOUNS_MIN: usize = {};\n\
+         pub const NOUNS_MAX: usize = {};\n",
+        minimum_length(&modifiers),
+        maximum_length(&modifiers),
+        minimum_length(&nouns),
+        maximum_length(&nouns),
+    );
 
-        output.push_str(&format!("pub static {name}: &[&str] = &{words:?};\n"));
-        output.push_str(&format!(
-            "pub const {name}_MAX: usize = {};\n",
-            words.iter().map(|w| w.len()).max().unwrap()
-        ));
-    }
     fs::write(
         PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("lists.rs"),
         output,
     )
     .unwrap();
+}
+
+fn read_components(path: &str) -> Vec<String> {
+    let text = fs::read_to_string(path).expect("read word-list component file");
+    let words: Vec<_> = text.lines().map(str::to_owned).collect();
+
+    assert_eq!(
+        words.len(),
+        COMPONENT_COUNT,
+        "{path}: expected exactly {COMPONENT_COUNT} entries"
+    );
+    assert!(
+        words.windows(2).all(|pair| pair[0] < pair[1]),
+        "{path}: entries must be strictly sorted"
+    );
+
+    for (index, word) in words.iter().enumerate() {
+        assert!(
+            (MIN_COMPONENT_BYTES..=MAX_COMPONENT_BYTES).contains(&word.len())
+                && word.bytes().all(|byte| byte.is_ascii_lowercase()),
+            "{path}: entry {index} must be {MIN_COMPONENT_BYTES}..={MAX_COMPONENT_BYTES} lowercase ASCII letters"
+        );
+    }
+
+    words
+}
+
+fn validate_compounds(modifiers: &[String], nouns: &[String]) {
+    let mut compounds = HashSet::with_capacity(COMPONENT_COUNT * COMPONENT_COUNT);
+
+    for modifier in modifiers {
+        for noun in nouns {
+            let mut compound = String::with_capacity(modifier.len() + noun.len());
+            compound.push_str(modifier);
+            compound.push_str(noun);
+            assert!(
+                compounds.insert(compound),
+                "component lists contain an ambiguous compound: {modifier} + {noun}"
+            );
+        }
+    }
+}
+
+fn minimum_length(words: &[String]) -> usize {
+    words.iter().map(String::len).min().unwrap()
+}
+
+fn maximum_length(words: &[String]) -> usize {
+    words.iter().map(String::len).max().unwrap()
 }

@@ -8,11 +8,12 @@
   },
   "scripts": {
     "build": "cargo xtask npm-build",
-    "test": "node --test test/*.cjs",
-    "bench": "node bench/compare.cjs",
+    "test": "tsc --noEmit && node --test test/*.ts",
+    "bench": "node bench/compare.ts",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit",
     "check": "pnpm run fmt:check && pnpm run lint",
     "pack": "cargo xtask npm-pack",
     "publish:check": "cargo xtask npm-publish --dry-run",
@@ -24,7 +25,10 @@
     "eslint": "10.11.0",
     "@eslint/js": "10.0.1",
     "globals": "17.12.0",
-    "humanhash": "1.0.4",
-    "wordhash": "1.0.1"
+    "niceware": "4.0.0",
+    "@scure/bip39": "2.4.0",
+    "@types/node": "24.13.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0"
   }
 }

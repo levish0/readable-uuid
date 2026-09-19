@@ -1,58 +1,103 @@
 {
-  "generatedAt": "2026-09-19T13:58:35.234Z",
+  "generatedAt": "2026-09-19T15:04:11.527Z",
   "node": "v24.12.0",
   "platform": "win32",
   "arch": "x64",
   "cpu": "AMD Ryzen 7 8845HS w/ Radeon 780M Graphics     ",
   "versions": {
-    "humanhash": "1.0.4",
-    "wordhash": "1.0.1",
-    "readable-uuid": "0.1.0"
+    "readable-uuid": "0.1.0",
+    "niceware": "4.0.0",
+    "@scure/bip39": "2.4.0"
   },
   "corpus": {
     "count": 4096,
     "description": "Deterministic SHA256 corpus: half UUIDv4, half same-millisecond UUIDv7"
   },
+  "scope": "Canonical UUID string <-> space-separated phrase; parsing and joining included",
   "rounds": 15,
   "operationsPerRound": 16384,
-  "results": [
+  "outputs": [
     {
-      "name": "readable-uuid",
-      "group": "UUID to four words",
-      "medianNs": 392,
-      "p10Ns": 382,
-      "p90Ns": 425,
-      "meanCharacters": 23.29,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 4096
+      "name": "readable-uuid (default)",
+      "words": 8,
+      "meanCharacters": 89.27,
+      "checksum": false
     },
     {
-      "name": "humanhash",
-      "group": "UUID to four words",
-      "medianNs": 1633,
-      "p10Ns": 1589,
-      "p90Ns": 1718,
-      "meanCharacters": 26.57,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 4096
+      "name": "niceware",
+      "words": 8,
+      "meanCharacters": 71.89,
+      "checksum": false
     },
     {
-      "name": "wordhash",
-      "group": "UUID to four words",
-      "medianNs": 1193,
-      "p10Ns": 1174,
-      "p90Ns": 1217,
-      "meanCharacters": 26.47,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 4096
-    },
-    {
-      "name": "readable-uuid (batch 1000)",
-      "group": "Batch; ns per UUID",
-      "medianNs": 412,
-      "p10Ns": 398,
-      "p90Ns": 475
+      "name": "@scure/bip39",
+      "words": 12,
+      "meanCharacters": 76.77,
+      "checksum": true
     }
   ],
-  "checksum": 22543512
+  "results": [
+    {
+      "name": "readable-uuid (default)",
+      "direction": "encode",
+      "medianNs": 715,
+      "p10Ns": 691,
+      "p90Ns": 760
+    },
+    {
+      "name": "readable-uuid (default)",
+      "direction": "decode",
+      "medianNs": 1828,
+      "p10Ns": 1793,
+      "p90Ns": 1852
+    },
+    {
+      "name": "niceware",
+      "direction": "encode",
+      "medianNs": 1250,
+      "p10Ns": 1119,
+      "p90Ns": 1346
+    },
+    {
+      "name": "niceware",
+      "direction": "decode",
+      "medianNs": 3112,
+      "p10Ns": 3028,
+      "p90Ns": 3570
+    },
+    {
+      "name": "@scure/bip39",
+      "direction": "encode",
+      "medianNs": 83858,
+      "p10Ns": 82898,
+      "p90Ns": 88840
+    },
+    {
+      "name": "@scure/bip39",
+      "direction": "decode",
+      "medianNs": 96014,
+      "p10Ns": 95271,
+      "p90Ns": 127635
+    }
+  ],
+  "batch": {
+    "name": "readable-uuid (default)",
+    "size": 1000,
+    "unit": "ns per UUID",
+    "results": [
+      {
+        "direction": "encode",
+        "medianNs": 400,
+        "p10Ns": 390,
+        "p90Ns": 423
+      },
+      {
+        "direction": "decode",
+        "medianNs": 1747,
+        "p10Ns": 1589,
+        "p90Ns": 1914
+      }
+    ]
+  },
+  "checksum": 102211608
 }

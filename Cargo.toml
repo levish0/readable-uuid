@@ -6,8 +6,8 @@ authors = ["Levi Laine <levi.laine.me@gmail.com>"]
 repository = "https://github.com/levish0/readable-uuid"
 rust-version = "1.93.0"
 license = "MIT"
-description = "Deterministic English word aliases for UUIDs"
-keywords = ["uuid", "human-readable", "hash", "blake3"]
+description = "Reversible English word encoding for UUIDs"
+keywords = ["uuid", "human-readable", "encoding", "mnemonic"]
 categories = ["encoding"]
 exclude = [".github", ".cargo", "justfile", "AGENTS.md", "memory"]
 
@@ -16,12 +16,13 @@ members = ["xtask", "bindings/node"]
 default-members = [".", "xtask"]
 
 [dependencies]
-blake3 = "1.8.7"
 uuid = "1.26.1"
 
 [dev-dependencies]
 criterion = "0.8.2"
-humanhash = "0.2.2"
+bip39 = "3.0.0"
+niceware = "1.0.0"
+blake3 = "1.8.7"
 serde_json = "1.0.151"
 
 [[bench]]

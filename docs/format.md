@@ -1,22 +1,26 @@
-# `blake3-v1` format
+# Format
 
-This is a lossy display alias, not UUID encoding, encryption or a unique key.
+The library uses one fixed 65,536-entry codebook.
 
-1. Parse the UUID and use its 16 bytes in canonical order.
-2. Hash `readable-uuid/blake3-v1`, a zero byte and the UUID bytes with unkeyed
-   BLAKE3.
-3. Read little-endian `u32` values from the XOF stream. For dictionary length
-   `N`, reject values outside `floor(2^32 / N) * N`; otherwise select `value % N`.
-4. Repeat until the requested word count and join the words with the separator.
+1. Parse the UUID into its 16 canonical bytes.
+2. Split the bytes into eight ordered pairs.
+3. Use the first byte of each pair as an index into the 256 modifiers.
+4. Use the second byte as an index into the 256 nouns.
+5. Render `modifier + CapitalizedNoun` and join the eight codewords.
 
-Rejected values consume four bytes. The dictionary, word count and separator
-are not hashed. Increasing the word count preserves previous words.
+For example, bytes `55 0e` select modifier 85 and noun 14. Decoding reverses
+the eight pairs and returns the original UUID bytes.
 
-All targets use this protocol and the frozen built-in lists. A new list needs a
-new identifier. Custom list order is part of the input and must be preserved.
+Canonical output is lowerCamelCase. Decoding accepts ASCII case variations,
+but does not trim input or normalize separators. A phrase must contain exactly
+eight codewords separated by the configured separator.
 
-Words are lowercase ASCII and separators are nonempty ASCII punctuation or
-spaces. Dictionaries contain 2–65,536 entries with words of 1–64 bytes.
+The ordered source files are
+[`modifiers.txt`](../wordlists/modifiers.txt) and
+[`nouns.txt`](../wordlists/nouns.txt). Their order is part of the
+format and must not change. `build.rs` requires 256 unique, sorted, lowercase
+ASCII entries in each file and verifies all 65,536 lowercase combinations are
+unique.
 
-Keep the original UUID for identity, lookup and authorization. See
-[custom dictionaries](custom-dictionaries.md) for the custom-list contract.
+The format has no hash, encryption or checksum. Every UUID round-trips without
+a database, but replacing a valid codeword can decode to a different UUID.

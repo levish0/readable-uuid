@@ -1,122 +1,64 @@
-//! Deterministic English word aliases for UUIDs. Labels are lossy, not unique IDs.
+//! Reversible English codewords for UUIDs.
 //!
 //! ```
-//! use readable_uuid::{ReadableUuid, WordSet, Uuid};
-//! let formatter = ReadableUuid::builder()
-//!     .word_set(WordSet::ShortV1)
-//!     .words(6)
-//!     .build()?;
-//! assert_eq!(formatter.format(&Uuid::nil()).split('-').count(), 6);
+//! use readable_uuid::{decode, encode, Uuid};
+//! let id = Uuid::nil();
+//! assert_eq!(decode(&encode(&id))?, id);
 //! # Ok::<(), readable_uuid::Error>(())
 //! ```
-use std::{collections::HashSet, fmt};
-pub use uuid::Uuid;
+use std::{fmt, sync::LazyLock};
 
-mod limits;
-pub use limits::{MAX_DICTIONARY_WORDS, MAX_WORD_BYTES};
+pub use uuid::Uuid;
 
 mod lists {
     include!(concat!(env!("OUT_DIR"), "/lists.rs"));
 }
 
-/// Version of the complete conversion protocol: domain, UUID byte order, XOF
-/// consumption, little-endian candidates and rejection sampling.
-pub const ALGORITHM: &str = "blake3-v1";
+/// Number of codewords in the fixed built-in codebook.
+pub const CODEBOOK_SIZE: usize = 65_536;
 
-/// Resource limit, not an entropy guarantee.
-pub const MAX_WORDS: usize = 64;
-
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-#[non_exhaustive]
-pub enum WordSet {
-    #[default]
-    EnglishV1,
-    ShortV1,
-    NatureV1,
-}
-
-impl WordSet {
-    /// Available dictionaries. New sets may be added without changing this type.
-    pub const ALL: &'static [Self] = &[Self::EnglishV1, Self::ShortV1, Self::NatureV1];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::EnglishV1 => "english-v1",
-            Self::ShortV1 => "short-v1",
-            Self::NatureV1 => "nature-v1",
-        }
-    }
-
-    pub const fn words(self) -> &'static [&'static str] {
-        match self {
-            Self::EnglishV1 => lists::ENGLISH,
-            Self::ShortV1 => lists::SHORT,
-            Self::NatureV1 => lists::NATURE,
-        }
-    }
-
-    pub const fn max_word_len(self) -> usize {
-        match self {
-            Self::EnglishV1 => lists::ENGLISH_MAX,
-            Self::ShortV1 => lists::SHORT_MAX,
-            Self::NatureV1 => lists::NATURE_MAX,
-        }
-    }
-}
+/// Number of codewords used to represent one UUID.
+pub const CODEWORDS_PER_UUID: usize = 8;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
-    InvalidWordCount,
-    InvalidDictionarySize,
-    InvalidWord(usize),
-    WordTooLong(usize),
-    DuplicateWord(usize),
     InvalidSeparator,
     InvalidUuid(uuid::Error),
-    OutputTooLong,
+    InvalidCodewordCount { actual: usize },
+    UnknownCodeword(usize),
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidWordCount => write!(f, "word count must be 1..={MAX_WORDS}"),
-            Self::InvalidDictionarySize => {
+            Self::InvalidSeparator => {
+                formatter.write_str("separator must be 1..=32 ASCII punctuation or space bytes")
+            }
+            Self::InvalidUuid(error) => error.fmt(formatter),
+            Self::InvalidCodewordCount { actual } => {
                 write!(
-                    f,
-                    "dictionary must contain 2..={MAX_DICTIONARY_WORDS} words"
+                    formatter,
+                    "expected {CODEWORDS_PER_UUID} codewords, received {actual}"
                 )
             }
-            Self::InvalidWord(i) => write!(f, "word {i} must contain only lowercase ASCII letters"),
-            Self::WordTooLong(index) => write!(f, "word {index} exceeds {MAX_WORD_BYTES} bytes"),
-            Self::DuplicateWord(i) => write!(f, "duplicate word at index {i}"),
-            Self::InvalidSeparator => {
-                f.write_str("separator must be 1..=32 ASCII punctuation or space bytes")
-            }
-            Self::InvalidUuid(e) => e.fmt(f),
-            Self::OutputTooLong => f.write_str("output length exceeds the supported capacity"),
+            Self::UnknownCodeword(index) => write!(formatter, "unknown codeword at index {index}"),
         }
     }
 }
 
 impl std::error::Error for Error {}
 
-/// Validated reusable formatter. Custom dictionaries are borrowed without copying.
+/// Reusable UUID codec with a configurable separator.
 #[derive(Debug, Clone)]
 pub struct ReadableUuid<'a> {
-    dictionary: &'a [&'a str],
-    words: usize,
     separator: &'a str,
     max_len: usize,
 }
 
 #[derive(Debug, Clone)]
 pub struct Builder<'a> {
-    dictionary: &'a [&'a str],
-    words: usize,
     separator: &'a str,
-    custom: bool,
-    longest: Option<usize>,
 }
 
 impl Default for ReadableUuid<'static> {
@@ -127,165 +69,146 @@ impl Default for ReadableUuid<'static> {
 
 impl<'a> ReadableUuid<'a> {
     pub fn builder() -> Builder<'a> {
-        Builder {
-            dictionary: WordSet::EnglishV1.words(),
-            words: 4,
-            separator: "-",
-            custom: false,
-            longest: Some(WordSet::EnglishV1.max_word_len()),
-        }
+        Builder { separator: "-" }
     }
 
-    pub fn format(&self, id: &Uuid) -> String {
+    pub fn encode(&self, id: &Uuid) -> String {
         let mut output = String::with_capacity(self.max_len);
-        self.write_into(id, &mut output);
+        self.encode_into(id, &mut output);
         output
     }
 
-    pub fn format_str(&self, id: &str) -> Result<String, Error> {
-        Ok(self.format(&Uuid::try_parse(id).map_err(Error::InvalidUuid)?))
+    pub fn encode_str(&self, id: &str) -> Result<String, Error> {
+        Ok(self.encode(&Uuid::try_parse(id).map_err(Error::InvalidUuid)?))
     }
 
-    /// Appends a label; clear the buffer first to replace its contents.
-    pub fn write_into(&self, id: &Uuid, output: &mut String) {
+    /// Appends a phrase; clear the buffer first to replace its contents.
+    pub fn encode_into(&self, id: &Uuid, output: &mut String) {
         output.reserve(self.max_len);
-        let mut hasher = blake3::Hasher::new();
-        hasher.update(b"readable-uuid/blake3-v1\0");
-        hasher.update(id.as_bytes());
-        let mut stream = hasher.finalize_xof();
-        let dictionary_size = self.dictionary.len() as u64;
-        let mut block = [0_u8; 64];
-        let mut offset = block.len();
-        for position in 0..self.words {
-            let index = sample_index(dictionary_size, || {
-                if offset == block.len() {
-                    stream.fill(&mut block);
-                    offset = 0;
-                }
-                let value = u32::from_le_bytes(block[offset..offset + 4].try_into().unwrap());
-                offset += 4;
-                value
-            });
+
+        for (position, pair) in id.as_bytes().chunks_exact(2).enumerate() {
             if position != 0 {
                 output.push_str(self.separator);
             }
-            output.push_str(self.dictionary[index]);
+
+            output.push_str(lists::MODIFIERS[usize::from(pair[0])]);
+            let noun = lists::NOUNS[usize::from(pair[1])];
+            output.push(char::from(noun.as_bytes()[0].to_ascii_uppercase()));
+            output.push_str(&noun[1..]);
         }
     }
 
-    pub fn dictionary_len(&self) -> usize {
-        self.dictionary.len()
+    /// Decodes exactly eight built-in codewords.
+    ///
+    /// ASCII case differences are accepted. There is no checksum: replacing a
+    /// valid codeword can produce a different UUID.
+    pub fn decode(&self, phrase: &str) -> Result<Uuid, Error> {
+        let actual = phrase.split(self.separator).count();
+        if actual != CODEWORDS_PER_UUID {
+            return Err(Error::InvalidCodewordCount { actual });
+        }
+
+        let mut bytes = [0_u8; 16];
+        for (position, codeword) in phrase.split(self.separator).enumerate() {
+            let pair = decode_compound(codeword).ok_or(Error::UnknownCodeword(position))?;
+            bytes[position * 2..position * 2 + 2].copy_from_slice(&pair);
+        }
+
+        Ok(Uuid::from_bytes(bytes))
     }
 
-    /// Log2 of word-sequence space, not input entropy or guaranteed uniqueness.
-    pub fn combination_bits(&self) -> f64 {
-        self.words as f64 * (self.dictionary.len() as f64).log2()
+    pub const fn dictionary_len(&self) -> usize {
+        CODEBOOK_SIZE
+    }
+
+    pub const fn word_count(&self) -> usize {
+        CODEWORDS_PER_UUID
     }
 }
 
+fn decode_compound(codeword: &str) -> Option<[u8; 2]> {
+    const MAX_COMPOUND_BYTES: usize = lists::MODIFIERS_MAX + lists::NOUNS_MAX;
+
+    if codeword.len() > MAX_COMPOUND_BYTES
+        || !codeword.bytes().all(|byte| byte.is_ascii_alphabetic())
+    {
+        return None;
+    }
+
+    let mut lowercase = [0_u8; MAX_COMPOUND_BYTES];
+    for (output, byte) in lowercase.iter_mut().zip(codeword.bytes()) {
+        *output = byte.to_ascii_lowercase();
+    }
+    let normalized = std::str::from_utf8(&lowercase[..codeword.len()]).ok()?;
+
+    let lookup = |boundary| {
+        let modifier = lists::MODIFIERS
+            .binary_search(&&normalized[..boundary])
+            .ok()?;
+        let noun = lists::NOUNS.binary_search(&&normalized[boundary..]).ok()?;
+        Some([modifier as u8, noun as u8])
+    };
+
+    if let Some(boundary) = codeword.bytes().position(|byte| byte.is_ascii_uppercase())
+        && boundary != 0
+        && let Some(pair) = lookup(boundary)
+    {
+        return Some(pair);
+    }
+
+    let first_boundary = lists::MODIFIERS_MIN.max(codeword.len().saturating_sub(lists::NOUNS_MAX));
+    let last_boundary = lists::MODIFIERS_MAX.min(codeword.len().saturating_sub(lists::NOUNS_MIN));
+    if first_boundary > last_boundary {
+        return None;
+    }
+
+    let mut found = None;
+    for boundary in first_boundary..=last_boundary {
+        if let Some(pair) = lookup(boundary) {
+            if found.is_some() {
+                return None;
+            }
+            found = Some(pair);
+        }
+    }
+    found
+}
+
 impl<'a> Builder<'a> {
-    pub fn word_set(mut self, set: WordSet) -> Self {
-        self.dictionary = set.words();
-        self.custom = false;
-        self.longest = Some(set.max_word_len());
-        self
-    }
-
-    /// Borrows an ordered dictionary, validated once by [`Self::build`].
-    ///
-    /// Entries must be unique lowercase ASCII words of 1..=64 bytes. The caller
-    /// owns the list and must preserve its contents and order for stable labels.
-    pub fn custom_words(mut self, words: &'a [&'a str]) -> Self {
-        self.dictionary = words;
-        self.custom = true;
-        self.longest = None;
-        self
-    }
-
-    pub fn words(mut self, words: usize) -> Self {
-        self.words = words;
-        self
-    }
-
     pub fn separator(mut self, separator: &'a str) -> Self {
         self.separator = separator;
         self
     }
 
     pub fn build(self) -> Result<ReadableUuid<'a>, Error> {
-        if !(1..=MAX_WORDS).contains(&self.words) {
-            return Err(Error::InvalidWordCount);
-        }
-        if !(2..=MAX_DICTIONARY_WORDS).contains(&self.dictionary.len()) {
-            return Err(Error::InvalidDictionarySize);
-        }
         if self.separator.is_empty()
             || self.separator.len() > 32
             || !self
                 .separator
                 .bytes()
-                .all(|b| b.is_ascii_punctuation() || b == b' ')
+                .all(|byte| byte.is_ascii_punctuation() || byte == b' ')
         {
             return Err(Error::InvalidSeparator);
         }
-        if self.custom {
-            let mut seen = HashSet::with_capacity(self.dictionary.len());
-            for (i, word) in self.dictionary.iter().enumerate() {
-                if word.len() > MAX_WORD_BYTES {
-                    return Err(Error::WordTooLong(i));
-                }
-                if word.is_empty() || !word.bytes().all(|b| b.is_ascii_lowercase()) {
-                    return Err(Error::InvalidWord(i));
-                }
-                if !seen.insert(word) {
-                    return Err(Error::DuplicateWord(i));
-                }
-            }
-        }
-        let longest = self
-            .longest
-            .unwrap_or_else(|| self.dictionary.iter().map(|w| w.len()).max().unwrap());
-        let max_len = longest
-            .checked_mul(self.words)
-            .and_then(|v| v.checked_add(self.separator.len() * (self.words - 1)))
-            .ok_or(Error::OutputTooLong)?;
+
+        let max_len = (lists::MODIFIERS_MAX + lists::NOUNS_MAX) * CODEWORDS_PER_UUID
+            + self.separator.len() * (CODEWORDS_PER_UUID - 1);
+
         Ok(ReadableUuid {
-            dictionary: self.dictionary,
-            words: self.words,
             separator: self.separator,
             max_len,
         })
     }
 }
 
-pub fn readable_uuid(id: &Uuid) -> String {
-    static DEFAULT: std::sync::LazyLock<ReadableUuid<'static>> =
-        std::sync::LazyLock::new(ReadableUuid::default);
-    DEFAULT.format(id)
+static DEFAULT: LazyLock<ReadableUuid<'static>> = LazyLock::new(ReadableUuid::default);
+
+/// Encodes a UUID as eight built-in codewords separated by hyphens.
+pub fn encode(id: &Uuid) -> String {
+    DEFAULT.encode(id)
 }
 
-fn sample_index(dictionary_size: u64, mut next: impl FnMut() -> u32) -> usize {
-    let acceptance_limit = (1_u64 << 32) / dictionary_size * dictionary_size;
-    loop {
-        let value = u64::from(next());
-        if value < acceptance_limit {
-            return (value % dictionary_size) as usize;
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::sample_index;
-    #[test]
-    fn rejection_boundary_and_power_of_two() {
-        let mut candidates = [u32::MAX, u32::MAX - 1].into_iter();
-        assert_eq!(sample_index(3, || candidates.next().unwrap()), 2);
-        assert!(candidates.next().is_none());
-        assert_eq!(sample_index(65536, || u32::MAX), 65535);
-        let limit = ((1_u64 << 32) / 553 * 553) as u32;
-        let mut candidates = [limit, limit - 1].into_iter();
-        assert_eq!(sample_index(553, || candidates.next().unwrap()), 552);
-        assert!(candidates.next().is_none());
-    }
+/// Decodes eight built-in codewords separated by hyphens.
+pub fn decode(phrase: &str) -> Result<Uuid, Error> {
+    DEFAULT.decode(phrase)
 }

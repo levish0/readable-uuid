@@ -1,6 +1,6 @@
 {
   "name": "readable-uuid",
-  "description": "Deterministic English word aliases for UUIDs, powered by Rust and BLAKE3",
+  "description": "Reversible English word encoding for UUIDs, powered by Rust",
   "license": "MIT",
   "repository": "https://github.com/levish0/readable-uuid",
   "main": "index.js",

@@ -1,27 +1,29 @@
 # readable-uuid
 
-Deterministic English word aliases for UUIDs. Rust core with Node.js bindings.
+Lossless UUIDs as eight memorable English codewords, backed by Rust.
 
-```js
-const { readableUuid, readableUuidBatch, wordSets } = require('readable-uuid');
-const label = readableUuid('550e8400-e29b-41d4-a716-446655440000', {
-  wordSet: 'short-v1',
-  words: 6,
-  separator: '-',
-});
+```ts
+import { decode, decodeBatch, encode, encodeBatch } from 'readable-uuid';
+
+const phrase = encode('550e8400-e29b-41d4-a716-446655440000');
+const uuid = decode(phrase);
+
+const phrases = encodeBatch(uuids);
+const restored = decodeBatch(phrases);
 ```
 
-Word sets: `english-v1` (553), `short-v1` (191), `nature-v1` (280).
-Defaults: `english-v1`, four words, `-`. Built-ins need no custom dictionary.
-Batch conversion validates options once per batch. Errors throw; a batch with
-any invalid UUID throws.
+The built-in codebook contains 65,536 fixed codewords and
+preserves every UUID bit in eight lowerCamelCase entries. Decoding accepts ASCII
+case variations.
 
-For advanced usage, `customWords` accepts 2–65,536 unique lowercase ASCII words
-of 1–64 bytes each, instead of `wordSet`. Preserve their exact order and contents
-for stable output. See [custom dictionaries](https://github.com/levish0/readable-uuid/blob/main/docs/custom-dictionaries.md).
+Use `separator` to replace the default hyphen:
 
-Labels are lossy and may collide. Keep the original UUID as the identifier.
-Supports Node.js 20+ on the published native targets; not browsers.
+```ts
+const phrase = encode(uuid, { separator: ' ' });
+```
 
-See the [repository](https://github.com/levish0/readable-uuid) for the Rust API
-and the frozen `blake3-v1` conversion specification.
+There is no checksum. A different valid codeword can decode to a different UUID.
+
+Supports Node.js 20+ on the published native targets. See the
+[repository](https://github.com/levish0/readable-uuid) for the Rust API, format
+specification and release targets.

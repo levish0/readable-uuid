@@ -1,105 +1,107 @@
-use readable_uuid::{
-    Error, MAX_DICTIONARY_WORDS, MAX_WORD_BYTES, MAX_WORDS, ReadableUuid, Uuid, WordSet,
-};
+use readable_uuid::{CODEBOOK_SIZE, CODEWORDS_PER_UUID, Error, ReadableUuid, Uuid};
 
 #[test]
-fn dictionaries_are_valid_and_short_is_short() {
-    for &set in WordSet::ALL {
-        ReadableUuid::builder()
-            .custom_words(set.words())
-            .build()
-            .unwrap();
-        assert!(set.words().windows(2).all(|w| w[0] < w[1]));
-        assert_eq!(
-            set.max_word_len(),
-            set.words().iter().map(|word| word.len()).max().unwrap()
-        );
+fn all_codewords_roundtrip_with_case_variations() {
+    let codec = ReadableUuid::default();
+    assert_eq!(codec.word_count(), CODEWORDS_PER_UUID);
+    assert_eq!(codec.dictionary_len(), CODEBOOK_SIZE);
+
+    for pair in 0..=u16::MAX {
+        let mut bytes = [0_u8; 16];
+        bytes[..2].copy_from_slice(&pair.to_be_bytes());
+        let id = Uuid::from_bytes(bytes);
+        let phrase = codec.encode(&id);
+
+        for text in [
+            phrase.clone(),
+            phrase.to_ascii_uppercase(),
+            phrase.to_ascii_lowercase(),
+        ] {
+            assert_eq!(codec.decode(&text).unwrap(), id);
+        }
     }
-    assert!(WordSet::ShortV1.words().iter().all(|w| w.len() <= 4));
 }
 
 #[test]
-fn canonical_input_and_appending() {
-    let formatter = ReadableUuid::default();
-    let expected = formatter
-        .format_str("550e8400-e29b-41d4-a716-446655440000")
-        .unwrap();
+fn mapping_matches_ordered_component_files() {
+    let modifiers: Vec<_> = include_str!("../wordlists/modifiers.txt").lines().collect();
+    let nouns: Vec<_> = include_str!("../wordlists/nouns.txt").lines().collect();
+    let id = Uuid::parse_str("550e8400-e29b-41d4-a716-446655440000").unwrap();
+
+    let expected = id
+        .as_bytes()
+        .chunks_exact(2)
+        .map(|pair| {
+            let noun = nouns[usize::from(pair[1])];
+            format!(
+                "{}{}{}",
+                modifiers[usize::from(pair[0])],
+                noun[..1].to_ascii_uppercase(),
+                &noun[1..]
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("-");
+
+    assert_eq!(readable_uuid::encode(&id), expected);
+    assert_eq!(readable_uuid::decode(&expected).unwrap(), id);
+}
+
+#[test]
+fn uuid_spellings_and_output_buffers() {
+    let codec = ReadableUuid::default();
+    let id = Uuid::parse_str("550e8400-e29b-41d4-a716-446655440000").unwrap();
+    let expected = codec.encode(&id);
+
     for text in [
         "550E8400-E29B-41D4-A716-446655440000",
         "550e8400e29b41d4a716446655440000",
         "urn:uuid:550e8400-e29b-41d4-a716-446655440000",
         "{550e8400-e29b-41d4-a716-446655440000}",
     ] {
-        assert_eq!(formatter.format_str(text).unwrap(), expected);
+        assert_eq!(codec.encode_str(text).unwrap(), expected);
     }
+
     let mut buffer = String::from("prefix:");
-    formatter.write_into(
-        &Uuid::parse_str("550e8400-e29b-41d4-a716-446655440000").unwrap(),
-        &mut buffer,
-    );
+    codec.encode_into(&id, &mut buffer);
     assert_eq!(buffer, format!("prefix:{expected}"));
-    assert!(formatter.format_str("abc").is_err());
+    assert!(matches!(
+        codec.encode_str("abc"),
+        Err(Error::InvalidUuid(_))
+    ));
 }
 
 #[test]
-fn prefix_is_stable_across_xof_blocks() {
-    for &set in WordSet::ALL {
-        let long = ReadableUuid::builder()
-            .word_set(set)
-            .words(MAX_WORDS)
+fn roundtrip_uuid_bits_and_deterministic_corpus() {
+    for separator in ["-", "::", " "] {
+        let codec = ReadableUuid::builder()
+            .separator(separator)
             .build()
-            .unwrap()
-            .format(&Uuid::max());
-        for count in [1, 4, 6, 16, 17, 32, 64] {
-            let formatter = ReadableUuid::builder()
-                .word_set(set)
-                .words(count)
-                .build()
-                .unwrap();
-            assert_eq!(
-                formatter.format(&Uuid::max()),
-                long.split('-').take(count).collect::<Vec<_>>().join("-")
-            );
+            .unwrap();
+
+        for value in [0, 1, u128::MAX, 1 << 127] {
+            let id = Uuid::from_u128(value);
+            assert_eq!(codec.decode(&codec.encode(&id)).unwrap(), id);
+        }
+        for bit in 0..128 {
+            let id = Uuid::from_u128(1 << bit);
+            assert_eq!(codec.decode(&codec.encode(&id)).unwrap(), id);
+        }
+
+        let mut state = 0x550e8400e29b41d4a716446655440000_u128;
+        for _ in 0..4096 {
+            state ^= state << 23;
+            state ^= state >> 17;
+            state ^= state << 26;
+            let id = Uuid::from_u128(state);
+            assert_eq!(codec.decode(&codec.encode(&id)).unwrap(), id);
         }
     }
 }
 
 #[test]
-fn invalid_configuration() {
-    for n in [0, 65, usize::MAX] {
-        assert_eq!(
-            ReadableUuid::builder().words(n).build().unwrap_err(),
-            Error::InvalidWordCount
-        );
-    }
-    for words in [&[][..], &["one"][..]] {
-        assert_eq!(
-            ReadableUuid::builder()
-                .custom_words(words)
-                .build()
-                .unwrap_err(),
-            Error::InvalidDictionarySize
-        );
-    }
-    for words in [
-        ["", "two"],
-        ["One", "two"],
-        ["one-two", "three"],
-        ["one two", "three"],
-    ] {
-        assert!(matches!(
-            ReadableUuid::builder().custom_words(&words).build(),
-            Err(Error::InvalidWord(_))
-        ));
-    }
-    assert_eq!(
-        ReadableUuid::builder()
-            .custom_words(&["one", "one"])
-            .build()
-            .unwrap_err(),
-        Error::DuplicateWord(1)
-    );
-    for separator in ["", "a", "\n"] {
+fn invalid_configuration_and_phrases() {
+    for separator in ["", "a", "\n", "é", &"-".repeat(33)] {
         assert_eq!(
             ReadableUuid::builder()
                 .separator(separator)
@@ -108,115 +110,62 @@ fn invalid_configuration() {
             Error::InvalidSeparator
         );
     }
-}
 
-#[test]
-fn custom_word_length_boundary() {
-    let longest_word = "a".repeat(MAX_WORD_BYTES);
-    let words = [longest_word.as_str(), "bee"];
-    let formatter = ReadableUuid::builder()
-        .custom_words(&words)
-        .words(MAX_WORDS)
-        .build()
-        .unwrap();
-    let label = formatter.format(&Uuid::nil());
-    assert_eq!(label.split('-').count(), MAX_WORDS);
-    assert!(label.split('-').all(|word| words.contains(&word)));
-
-    for length in [MAX_WORD_BYTES + 1, 1024 * 1024] {
-        let oversized_word = "a".repeat(length);
-        let words = ["bee", oversized_word.as_str()];
-        assert_eq!(
-            ReadableUuid::builder()
-                .custom_words(&words)
-                .build()
-                .unwrap_err(),
-            Error::WordTooLong(1),
-        );
+    let codec = ReadableUuid::default();
+    let phrase = codec.encode(&Uuid::nil());
+    for invalid in [
+        String::new(),
+        format!("{phrase}-ableAcorn"),
+        phrase.split('-').skip(1).collect::<Vec<_>>().join("-"),
+    ] {
+        assert!(matches!(
+            codec.decode(&invalid),
+            Err(Error::InvalidCodewordCount { .. })
+        ));
     }
-}
 
-#[test]
-fn custom_dictionary_size_boundary() {
-    // Four base-26 letters provide distinct valid words across the size limit.
-    let owned_words: Vec<String> = (0..=MAX_DICTIONARY_WORDS)
-        .map(|mut index| {
-            let mut letters = [b'a'; 4];
-            for letter in &mut letters {
-                *letter += (index % 26) as u8;
-                index /= 26;
-            }
-            String::from_utf8(letters.to_vec()).unwrap()
-        })
-        .collect();
-    let dictionary: Vec<&str> = owned_words.iter().map(String::as_str).collect();
-
-    let formatter = ReadableUuid::builder()
-        .custom_words(&dictionary[..MAX_DICTIONARY_WORDS])
-        .build()
-        .unwrap();
-    assert_eq!(formatter.dictionary_len(), MAX_DICTIONARY_WORDS);
-    assert_eq!(formatter.combination_bits(), 64.0);
-    assert_eq!(formatter.format(&Uuid::nil()).split('-').count(), 4);
+    let mut codewords: Vec<_> = phrase.split('-').collect();
+    codewords[3] = "unknown";
     assert_eq!(
-        ReadableUuid::builder()
-            .custom_words(&dictionary)
-            .build()
-            .unwrap_err(),
-        Error::InvalidDictionarySize,
+        codec.decode(&codewords.join("-")),
+        Err(Error::UnknownCodeword(3))
+    );
+
+    let spaced = ReadableUuid::builder().separator(" ").build().unwrap();
+    let id = Uuid::max();
+    assert_eq!(spaced.decode(&spaced.encode(&id)).unwrap(), id);
+    assert!(
+        spaced
+            .decode(&spaced.encode(&id).replace(' ', "  "))
+            .is_err()
     );
 }
 
 #[test]
-fn custom_order_and_combination_space() {
-    let original_words = ["red", "green", "blue"];
-    let rotated_words = ["blue", "red", "green"];
-    let original_formatter = ReadableUuid::builder()
-        .custom_words(&original_words)
-        .words(64)
-        .build()
-        .unwrap();
-    let rotated_formatter = ReadableUuid::builder()
-        .custom_words(&rotated_words)
-        .words(64)
-        .build()
-        .unwrap();
-    let original_label = original_formatter.format(&Uuid::nil());
-    let rotated_label = rotated_formatter.format(&Uuid::nil());
-    for (original_word, rotated_word) in original_label.split('-').zip(rotated_label.split('-')) {
-        assert_eq!(
-            original_words.iter().position(|w| *w == original_word),
-            rotated_words.iter().position(|w| *w == rotated_word)
-        );
-    }
-    assert!((original_formatter.combination_bits() - 64.0 * 3.0_f64.log2()).abs() < 1e-10);
-}
-
-#[test]
-fn frozen_vectors_and_dictionaries() {
+fn frozen_vectors_and_word_lists() {
     let data: serde_json::Value = serde_json::from_str(include_str!("vectors.json")).unwrap();
+
     for row in data["vectors"].as_array().unwrap() {
-        let set = WordSet::ALL
-            .iter()
-            .copied()
-            .find(|s| s.name() == row["set"].as_str().unwrap())
-            .unwrap();
-        let formatter = ReadableUuid::builder()
-            .word_set(set)
-            .words(row["words"].as_u64().unwrap() as usize)
+        let codec = ReadableUuid::builder()
             .separator(row["separator"].as_str().unwrap())
             .build()
             .unwrap();
-        assert_eq!(
-            formatter.format_str(row["uuid"].as_str().unwrap()).unwrap(),
-            row["label"].as_str().unwrap()
-        );
+        let id = Uuid::parse_str(row["uuid"].as_str().unwrap()).unwrap();
+        let phrase = row["label"].as_str().unwrap();
+
+        assert_eq!(codec.word_count(), row["words"].as_u64().unwrap() as usize);
+        assert_eq!(codec.encode(&id), phrase);
+        assert_eq!(codec.decode(phrase).unwrap(), id);
     }
-    for &set in WordSet::ALL {
-        let canonical = format!("{}\n", set.words().join("\n"));
+
+    for (name, source) in [
+        ("modifiers", include_str!("../wordlists/modifiers.txt")),
+        ("nouns", include_str!("../wordlists/nouns.txt")),
+    ] {
+        let canonical = format!("{}\n", source.lines().collect::<Vec<_>>().join("\n"));
         assert_eq!(
             blake3::hash(canonical.as_bytes()).to_hex().as_str(),
-            data["dictionaries"][set.name()].as_str().unwrap()
+            data["dictionaries"][name].as_str().unwrap()
         );
     }
 }
