@@ -78,7 +78,7 @@ just publish-npm
 
 Native npm releases require all platform artifacts from CI; see
 [release instructions](docs/releasing.md). Benchmarks compare UUID/string inputs
-and buffer reuse against `humanhash`. Node benchmarks include `human-id`,
-`unique-names-generator`, `humanhash` and `wordhash`; see [results](docs/performance.md).
+and buffer reuse against `humanhash` and `wordhash`; npm download counts for
+broader ecosystem context are recorded separately. See [results](docs/performance.md).
 
 MIT licensed, including the project-curated English word lists.

@@ -6,14 +6,6 @@ const os = require('node:os');
 const { readableUuid, readableUuidBatch } = require('../pkg-npm/index.js');
 const HumanHasher = require('humanhash');
 const WordHash = require('wordhash');
-const {
-  uniqueNamesGenerator,
-  adjectives,
-  colors,
-  animals,
-  names,
-} = require('unique-names-generator');
-const { humanId } = require('human-id');
 
 const ids = Array.from({ length: 4096 }, (_, i) => {
   const bytes = createHash('sha256').update(`readable-uuid-bench:${i}`).digest().subarray(0, 16);
@@ -31,12 +23,6 @@ const ids = Array.from({ length: 4096 }, (_, i) => {
 const hasher = new HumanHasher();
 const wordhash = WordHash({ length: 4, separator: '-' });
 
-const config = {
-  dictionaries: [adjectives, colors, animals, names],
-  length: 4,
-  separator: '-',
-  style: 'lowerCase',
-};
 const cases = [
   { name: 'readable-uuid', group: 'UUID to four words', fn: (id) => readableUuid(id) },
   {
@@ -45,21 +31,6 @@ const cases = [
     fn: (id) => hasher.humanize(id.replaceAll('-', ''), 4, '-'),
   },
   { name: 'wordhash', group: 'UUID to four words', fn: (id) => wordhash.hash(id) },
-  {
-    name: 'unique-names-generator (seeded)',
-    group: 'UUID to four words',
-    fn: (id) => uniqueNamesGenerator({ ...config, seed: id }),
-  },
-  {
-    name: 'human-id (random)',
-    group: 'Random generation; not UUID conversion',
-    fn: () => humanId({ adjectiveCount: 2, separator: '-', capitalize: false }),
-  },
-  {
-    name: 'unique-names-generator (random)',
-    group: 'Random generation; not UUID conversion',
-    fn: () => uniqueNamesGenerator(config),
-  },
 ];
 
 let checksum = 0;
@@ -128,7 +99,7 @@ results.push({
 });
 
 const versions = Object.fromEntries(
-  ['human-id', 'unique-names-generator', 'humanhash', 'wordhash'].map((name) => [
+  ['humanhash', 'wordhash'].map((name) => [
     name,
     JSON.parse(readFileSync(resolve(__dirname, '../node_modules', name, 'package.json'))).version,
   ]),
