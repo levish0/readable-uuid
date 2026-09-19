@@ -4,6 +4,11 @@ Rust is the primary package. `just publish-crates-dry` runs cargo publish's
 packaging and compilation checks; `just publish-crates` uploads it.
 For validation of uncommitted work use `just publish-crates-dry --allow-dirty`.
 
+`Cargo.toml` at the workspace root is the only public version source. The
+generated npm loader, all five platform packages and their artifact provenance
+use that same version. `npm-build` reads it through `cargo metadata`, so there
+is no second npm version to edit.
+
 The root Cargo package is the source of the public package version. The Rust `xtask`
 builder reads it and generates `bindings/node/pkg-npm/package.json` from
 `package.template.json`. This generated directory contains only distributable
@@ -34,10 +39,18 @@ not included in this initial release.
 5. Commit release sources, then run `just publish-npm`. It requires a clean Git
    worktree, repeats checks, and publishes platform packages before the loader.
 
+Once the five native artifacts are available, `just release-dry` runs both the
+crates.io and npm preflights. After it succeeds on a clean commit, `just release`
+runs those preflights again, publishes `readable-uuid` to crates.io, and then
+publishes the npm platform packages followed by the root loader package.
+
 Keep the Rust package version, binding crate version, changelog and Cargo.lock
 aligned. Refresh the pnpm lockfile when JS development dependencies change.
 No npm version needs a manual bump: distribution metadata is generated from Cargo.
 
 Publishing requires your registry credentials. Multi-package npm publication is
-not atomic. If it fails partway, inspect published versions before retrying;
-the Rust xtask stops at the first error. CI never publishes automatically.
+not atomic, and crates.io and npm cannot share a transaction. If the combined
+release fails after crates.io succeeds, rerun the npm part for the same version;
+never bump the version just to retry. Inspect already-published npm versions
+before retrying because the Rust xtask stops at the first error. CI never
+publishes automatically.

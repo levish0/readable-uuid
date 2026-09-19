@@ -1,12 +1,10 @@
 {
-  "generatedAt": "2026-09-19T13:47:13.398Z",
+  "generatedAt": "2026-09-19T13:58:35.234Z",
   "node": "v24.12.0",
   "platform": "win32",
   "arch": "x64",
   "cpu": "AMD Ryzen 7 8845HS w/ Radeon 780M Graphics     ",
   "versions": {
-    "human-id": "4.2.1",
-    "unique-names-generator": "4.7.1",
     "humanhash": "1.0.4",
     "wordhash": "1.0.1",
     "readable-uuid": "0.1.0"
@@ -21,9 +19,9 @@
     {
       "name": "readable-uuid",
       "group": "UUID to four words",
-      "medianNs": 395,
-      "p10Ns": 379,
-      "p90Ns": 408,
+      "medianNs": 392,
+      "p10Ns": 382,
+      "p90Ns": 425,
       "meanCharacters": 23.29,
       "emptyWordLabels": 0,
       "uniqueLabels": 4096
@@ -31,9 +29,9 @@
     {
       "name": "humanhash",
       "group": "UUID to four words",
-      "medianNs": 1667,
-      "p10Ns": 1645,
-      "p90Ns": 1716,
+      "medianNs": 1633,
+      "p10Ns": 1589,
+      "p90Ns": 1718,
       "meanCharacters": 26.57,
       "emptyWordLabels": 0,
       "uniqueLabels": 4096
@@ -41,50 +39,20 @@
     {
       "name": "wordhash",
       "group": "UUID to four words",
-      "medianNs": 1187,
-      "p10Ns": 1161,
-      "p90Ns": 1258,
+      "medianNs": 1193,
+      "p10Ns": 1174,
+      "p90Ns": 1217,
       "meanCharacters": 26.47,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 4096
-    },
-    {
-      "name": "unique-names-generator (seeded)",
-      "group": "UUID to four words",
-      "medianNs": 642,
-      "p10Ns": 606,
-      "p90Ns": 681,
-      "meanCharacters": 28.78,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 604
-    },
-    {
-      "name": "human-id (random)",
-      "group": "Random generation; not UUID conversion",
-      "medianNs": 160,
-      "p10Ns": 155,
-      "p90Ns": 173,
-      "meanCharacters": 22.62,
-      "emptyWordLabels": 0,
-      "uniqueLabels": 4096
-    },
-    {
-      "name": "unique-names-generator (random)",
-      "group": "Random generation; not UUID conversion",
-      "medianNs": 501,
-      "p10Ns": 472,
-      "p90Ns": 584,
-      "meanCharacters": 28.53,
       "emptyWordLabels": 0,
       "uniqueLabels": 4096
     },
     {
       "name": "readable-uuid (batch 1000)",
       "group": "Batch; ns per UUID",
-      "medianNs": 406,
-      "p10Ns": 397,
-      "p90Ns": 410
+      "medianNs": 412,
+      "p10Ns": 398,
+      "p90Ns": 475
     }
   ],
-  "checksum": 46123115
+  "checksum": 22543512
 }

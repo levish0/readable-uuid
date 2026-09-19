@@ -24,6 +24,12 @@ publish-crates-dry *args:
 publish-crates *args:
     cargo xtask publish {{args}}
 
+release-dry *args:
+    cargo xtask release-dry {{args}}
+
+release:
+    cargo xtask release
+
 js-install:
     pnpm --dir bindings/node install --frozen-lockfile
 

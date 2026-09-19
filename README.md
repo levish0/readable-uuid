@@ -63,20 +63,28 @@ Also exports `readableUuidBatch` and `wordSets`. See [Node.js details](bindings/
 
 Median formatting time; lower is better.
 
-| Implementation  |     Median |
-| --------------- | ---------: |
-| `readable-uuid` | **395 ns** |
-| `wordhash`      |   1,187 ns |
-| `humanhash`     |   1,667 ns |
-
-```mermaid
-xychart horizontal
-    title "Median formatting time (lower is better)"
-    x-axis ["readable-uuid", "wordhash", "humanhash"]
-    y-axis "ns" 0 --> 1800
-    bar [395, 1187, 1667]
-```
-
+<table width="100%">
+  <thead>
+    <tr>
+      <th align="left">Implementation</th>
+      <th align="right">Median</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>readable-uuid</code></td>
+      <td align="right"><strong>395 ns</strong></td>
+    </tr>
+    <tr>
+      <td><code>wordhash</code></td>
+      <td align="right">1,187 ns</td>
+    </tr>
+    <tr>
+      <td><code>humanhash</code></td>
+      <td align="right">1,667 ns</td>
+    </tr>
+  </tbody>
+</table>
 See [benchmark methodology and full results](docs/performance.md).
 
 ## Development
@@ -94,10 +102,13 @@ just publish-crates-dry
 just publish-crates
 just publish-npm-dry
 just publish-npm
+just release-dry
+just release
 ```
 
 Native npm releases require all platform artifacts from CI; see
-[release instructions](docs/releasing.md). Benchmarks compare UUID/string inputs
+[release instructions](docs/releasing.md). The release commands run both
+registry preflights and then publish crates.io before npm. Benchmarks compare UUID/string inputs
 and buffer reuse against `humanhash` and `wordhash`; npm download counts for
 broader ecosystem context are recorded separately. See [results](docs/performance.md).
 
