@@ -93,7 +93,6 @@ just release
 Native npm releases require all platform artifacts from CI; see
 [release instructions](docs/releasing.md). The release commands run both
 registry preflights and then publish crates.io before npm. Benchmarks compare UUID/string inputs
-and buffer reuse against `humanhash` and `wordhash`; npm download counts for
-broader ecosystem context are recorded separately. See [results](docs/performance.md).
+and buffer reuse against `humanhash` and `wordhash`; see [results](docs/performance.md).
 
 MIT licensed, including the project-curated English word lists.

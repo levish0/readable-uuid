@@ -37,26 +37,6 @@ The executable benchmark and machine-readable samples are in
 [`bindings/node/bench`](../bindings/node/bench/). Timings vary by CPU, runtime,
 load and corpus. The randomized rows will not produce repeatable names.
 
-### Ecosystem context
-
-The npm downloads API reported the following for 2026-09-12 through 2026-09-18:
-
-| Package | Weekly downloads | Role |
-| --- | ---: | --- |
-| human-id | 3,765,131 | Widely used random readable IDs; not a benchmark target |
-| unique-names-generator | 577,651 | Widely used configurable names; not a benchmark target |
-| humanhash | 934 | Direct deterministic digest-to-words comparator |
-| wordhash | 5 | Direct UUID-string-to-words comparator |
-
-Popularity does not imply semantic equivalence. Only `humanhash` and `wordhash`
-are included in the UUID conversion benchmark; the other packages are listed
-only to show broader npm ecosystem usage.
-The [saved snapshot](../bindings/node/bench/popularity.json) includes the exact
-npm API URLs and dates. Refresh it with `pnpm --dir bindings/node run bench:popularity`.
-Package documentation: [human-id](https://github.com/RienNeVaPlus/human-id),
-[unique-names-generator](https://github.com/andreasonny83/unique-names-generator),
-[humanhash](https://github.com/SEBv15/humanhash), [wordhash](https://github.com/mistersimon/wordhash).
-
 ## Rust
 
 Initial local release-build measurements on the same machine:

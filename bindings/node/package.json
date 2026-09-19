@@ -10,7 +10,6 @@
     "build": "cargo xtask npm-build",
     "test": "node --test test/*.cjs",
     "bench": "node bench/compare.cjs",
-    "bench:popularity": "node bench/popularity.mjs",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
