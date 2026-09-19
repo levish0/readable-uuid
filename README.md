@@ -39,7 +39,7 @@ codec.encode_into(&id, &mut output);
 ## JavaScript
 
 ```ts
-import { decode, encode } from 'readable-uuid';
+import { decode, encode } from '@levish0/readable-uuid';
 
 const phrase = encode('550e8400-e29b-41d4-a716-446655440000');
 const uuid = decode(phrase);
@@ -47,7 +47,8 @@ const uuid = decode(phrase);
 
 Also exports `encodeBatch` and `decodeBatch`.
 
-The npm package uses the same WebAssembly module in Node.js and browsers.
+The `@levish0/readable-uuid` npm package uses the same WebAssembly module in
+Node.js and browsers.
 
 ## Format
 
@@ -83,7 +84,8 @@ just npm-pack
 just release-dry
 ```
 
-The root Cargo version is shared by crates.io and the WebAssembly npm package. See
+The root Cargo version is shared by the `readable-uuid` crate and the
+`@levish0/readable-uuid` npm package. See the
 [release instructions](docs/releasing.md).
 
 MIT licensed.

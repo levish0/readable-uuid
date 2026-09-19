@@ -3,7 +3,7 @@
 Lossless UUIDs as eight memorable English codewords, compiled from Rust to WebAssembly.
 
 ```ts
-import { decode, decodeBatch, encode, encodeBatch } from 'readable-uuid';
+import { decode, decodeBatch, encode, encodeBatch } from '@levish0/readable-uuid';
 
 const phrase = encode('550e8400-e29b-41d4-a716-446655440000');
 const uuid = decode(phrase);

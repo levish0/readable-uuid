@@ -1,5 +1,5 @@
 {
-  "name": "readable-uuid",
+  "name": "@levish0/readable-uuid",
   "description": "Reversible English word encoding for UUIDs",
   "license": "MIT",
   "repository": "https://github.com/levish0/readable-uuid",
