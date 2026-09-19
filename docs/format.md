@@ -1,46 +1,22 @@
-# blake3-v1
+# `blake3-v1` format
 
-This is a lossy alias protocol, not UUID encoding, encryption, or a unique key.
+This is a lossy display alias, not UUID encoding, encryption or a unique key.
 
-1. Parse input with `uuid::Uuid::try_parse`. Hash its 16 `as_bytes()` bytes,
-   in canonical UUID/network order. Case and accepted UUID string wrappers do not matter.
-2. Unkeyed BLAKE3 hashes the ASCII bytes `readable-uuid/blake3-v1`, a zero byte,
-   then the 16 UUID bytes. Use the BLAKE3 XOF stream from byte offset zero.
-3. Read consecutive unsigned little-endian 32-bit candidates from that stream.
-   For dictionary length N, let L = floor(2^32 / N) * N, calculated in 64 bits.
-   Reject candidates x >= L. Otherwise select dictionary[x % N]. Rejected
-   candidates consume four bytes, produce no word, and never reset the stream.
-4. Repeat until the requested word count is reached, allowing repeated words.
-   Join using the separator. Dictionary, count and separator are not hashed.
-   Increasing count therefore preserves all previous words.
+1. Parse the UUID and use its 16 bytes in canonical order.
+2. Hash `readable-uuid/blake3-v1`, a zero byte and the UUID bytes with unkeyed
+   BLAKE3.
+3. Read little-endian `u32` values from the XOF stream. For dictionary length
+   `N`, reject values outside `floor(2^32 / N) * N`; otherwise select `value % N`.
+4. Repeat until the requested word count and join the words with the separator.
 
-All targets use the same integer widths, byte order, and frozen dictionaries.
-Package upgrades must not change this protocol or replace a versioned dictionary.
-A new dictionary requires a new identifier. Custom list order is significant;
-callers must retain it. Built-in files have one word per line; fingerprint tests
-hash the canonical LF-terminated representation, independent of checkout EOLs.
+Rejected values consume four bytes. The dictionary, word count and separator
+are not hashed. Increasing the word count preserves previous words.
 
-English lists are project-curated common words under the repository MIT license.
-`short-v1` was initially selected from `english-v1` with length <=4 and then
-frozen as its own file. `nature-v1` covers animals, plants, weather and landscapes.
-These are not BIP39 lists, natural-language sentences, or a profanity guarantee.
-No runtime dictionary parsing, random state, I/O or dictionary copying is needed.
+All targets use this protocol and the frozen built-in lists. A new list needs a
+new identifier. Custom list order is part of the input and must be preserved.
 
-The word-sequence space is N^k and `combination_bits()` returns k*log2(N).
-Actual information is bounded by the UUID input and its generation scheme.
-Under a uniform-output approximation, the birthday collision probability among m
-labels is approximately 1-exp(-m*(m-1)/(2*N^k)). For the 553-word default list,
-four words and one million identifiers give approximately 99.5%; six words give
-approximately 0.00175%. These are estimates, not measured guarantees. Keep UUIDs
-for uniqueness, lookups, authentication and authorization.
+Words are lowercase ASCII and separators are nonempty ASCII punctuation or
+spaces. Dictionaries contain 2–65,536 entries with words of 1–64 bytes.
 
-Separators are nonempty ASCII punctuation/spaces, and words lowercase ASCII,
-so distinct word sequences cannot collapse through ambiguous concatenation.
-Each dictionary contains 2–65,536 entries of 1–64 bytes each. These limits apply
-to built-ins at build time and custom lists at formatter construction. Counts,
-word lengths and separators are bounded to avoid excessive output reservation.
-See [custom dictionaries](custom-dictionaries.md) for lifetime and stability rules.
-
-`tests/vectors.json` contains frozen outputs and list fingerprints. Tests must
-compare against it, not regenerate it during normal checks. `examples/vectors.rs`
-is a maintainer aid for a deliberate new format, never an upgrade repair command.
+Keep the original UUID for identity, lookup and authorization. See
+[custom dictionaries](custom-dictionaries.md) for the custom-list contract.

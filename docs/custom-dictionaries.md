@@ -1,27 +1,24 @@
 # Custom dictionaries
 
-Start with a built-in `WordSet`. Custom dictionaries are an optional API for
-service-specific vocabularies, available without Cargo feature flags or loaders.
+Built-in word sets are the normal path. Use a custom dictionary when a service
+needs its own vocabulary.
 
 ## Rust
 
 ```rust
 use readable_uuid::{ReadableUuid, Uuid};
 
-let dictionary = ["cedar", "finch", "moss", "river"];
+let words = ["cedar", "finch", "moss", "river"];
 let formatter = ReadableUuid::builder()
-    .custom_words(&dictionary)
+    .custom_words(&words)
     .words(4)
     .build()?;
 
 let label = formatter.format(&Uuid::nil());
 ```
 
-The formatter borrows the slice and its words. Keep them alive while using it.
-Validation happens once at `build()`, and subsequent conversions reuse the list.
-The four-word dictionary above is only an API example: four output words provide
-just `4^4 = 256` combinations. Use a larger dictionary or a longer label for real
-populations, and retain the UUID as the unique identifier.
+The formatter borrows the slice, so keep the words alive while using it.
+Validation runs once at `build()`.
 
 ## Node.js
 
@@ -34,21 +31,15 @@ const labels = readableUuidBatch(uuids, {
 });
 ```
 
-Choose either `wordSet` or `customWords`. Single calls validate the custom list
-each time; a batch validates it once for the whole batch. Invalid lists throw.
+Use either `wordSet` or `customWords`. Single calls validate custom words per
+call; batch calls validate them once per batch. Invalid input throws.
 
-## Contract
+Rules:
 
-- A list contains 2–65,536 unique words, in the supplied order.
-- Each word contains 1–64 lowercase ASCII letters. Custom does not imply
-  multilingual support. Empty, duplicate, non-ASCII and oversized words fail
-  validation; no trimming, sorting or case conversion is applied.
-- The same UUID, conversion protocol, ordered list and output options produce
-  the same label in Rust and Node.js.
-- The library preserves built-in versioned lists. For custom lists, the caller
-  must retain the exact contents and order. Changes can change every label.
+- 2–65,536 unique words, in the supplied order.
+- 1–64 lowercase ASCII bytes per word.
+- No trimming, sorting, case conversion or multilingual words.
+- The same UUID, ordered list and options always produce the same label.
 
-`MAX_DICTIONARY_WORDS` and `MAX_WORD_BYTES` expose the limits in Rust.
-`WordTooLong(index)` identifies oversized entries. The length bound also limits
-the formatter's output reservation; an arithmetic overflow is reported as
-`OutputTooLong`, not an invalid dictionary size.
+Keep the exact custom list and the original UUID. Labels are lossy and may
+collide.
