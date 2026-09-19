@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-09-19T13:23:01.901Z",
+  "node": "v24.12.0",
+  "platform": "win32",
+  "arch": "x64",
+  "cpu": "AMD Ryzen 7 8845HS w/ Radeon 780M Graphics     ",
+  "versions": {
+    "human-id": "4.2.1",
+    "unique-names-generator": "4.7.1",
+    "humanhash": "1.0.4",
+    "wordhash": "1.0.1",
+    "readable-uuid": "0.1.0"
+  },
+  "corpus": {
+    "count": 4096,
+    "description": "Deterministic SHA256 corpus: half UUIDv4, half same-millisecond UUIDv7"
+  },
+  "rounds": 15,
+  "operationsPerRound": 16384,
+  "results": [
+    {
+      "name": "readable-uuid",
+      "group": "UUID to four words",
+      "medianNs": 407,
+      "p10Ns": 376,
+      "p90Ns": 445,
+      "meanCharacters": 23.29,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 4096
+    },
+    {
+      "name": "humanhash",
+      "group": "UUID to four words",
+      "medianNs": 1748,
+      "p10Ns": 1642,
+      "p90Ns": 1953,
+      "meanCharacters": 26.57,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 4096
+    },
+    {
+      "name": "wordhash",
+      "group": "UUID to four words",
+      "medianNs": 1261,
+      "p10Ns": 1165,
+      "p90Ns": 1394,
+      "meanCharacters": 26.47,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 4096
+    },
+    {
+      "name": "unique-names-generator (seeded)",
+      "group": "UUID to four words",
+      "medianNs": 601,
+      "p10Ns": 576,
+      "p90Ns": 748,
+      "meanCharacters": 28.78,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 604
+    },
+    {
+      "name": "human-id (random)",
+      "group": "Random generation; not UUID conversion",
+      "medianNs": 180,
+      "p10Ns": 169,
+      "p90Ns": 211,
+      "meanCharacters": 22.64,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 4096
+    },
+    {
+      "name": "unique-names-generator (random)",
+      "group": "Random generation; not UUID conversion",
+      "medianNs": 504,
+      "p10Ns": 455,
+      "p90Ns": 635,
+      "meanCharacters": 28.55,
+      "emptyWordLabels": 0,
+      "uniqueLabels": 4096
+    },
+    {
+      "name": "readable-uuid (batch 1000)",
+      "group": "Batch; ns per UUID",
+      "medianNs": 421,
+      "p10Ns": 391,
+      "p90Ns": 439
+    }
+  ],
+  "checksum": 46123151
+}

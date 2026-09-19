@@ -1,30 +1,10 @@
 name: test
-
-on:
-  push:
-  pull_request:
-
+on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Start SpiceDB
-        uses: authzed/action-spicedb@v1
-        with:
-          version: latest
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "."
-
-      - name: Run tests
-        env:
-          SPICEDB_ENDPOINT: 127.0.0.1:50051
-        run: cargo test --workspace --all-targets -- --nocapture
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --locked -p readable-uuid

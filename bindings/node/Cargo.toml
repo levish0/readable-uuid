@@ -1,0 +1,16 @@
+[package]
+name = "readable-uuid-node"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+readable-uuid = { path = "../.." }
+napi = { version = "3.12.6", default-features = false, features = ["napi8"] }
+napi-derive = "3.6.7"
+
+[build-dependencies]
+napi-build = "2.4.3"

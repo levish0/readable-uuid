@@ -1,0 +1,429 @@
+{
+  "dictionaries": {
+    "english-v1": "db2d1a4e835f5898cd1250b64d34d3dfe952c0cec73319ea50d33b31b5dd6b5f",
+    "nature-v1": "5e9a78aa9b947ff934ed0a428e37789eb7e2d040bdb4176792e21ff6322d1f53",
+    "short-v1": "da26ae0ceab21f38d44592a4e041729444479d4bab007911a6b55b070406f62e"
+  },
+  "vectors": [
+    {
+      "label": "cup",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 1
+    },
+    {
+      "label": "cup-hammer-basket-bronze",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 4
+    },
+    {
+      "label": "cup hammer basket bronze robin chest",
+      "separator": " ",
+      "set": "english-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 6
+    },
+    {
+      "label": "cup-hammer-basket-bronze-robin-chest-wing-bag-city-buffalo-moss-kestrel-drawer-hail-stamp-crown-chest",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 17
+    },
+    {
+      "label": "cup-hammer-basket-bronze-robin-chest-wing-bag-city-buffalo-moss-kestrel-drawer-hail-stamp-crown-chest-ocean-string-sunset-latch-hail-sky-flame-medal-compass-dragon-shark-lake-hazel-saddle-wire-aster-laurel-owl-helmet-aspen-mountain-tulip-flock-lens-house-bread-kitchen-cloth-lobster-pear-blanket-rabbit-fawn-mirror-starling-shrimp-gift-sail-poppy-poplar-raven-bell-loom-circle-barley-mink-bud",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 64
+    },
+    {
+      "label": "weasel",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 1
+    },
+    {
+      "label": "weasel-frost-spruce-elm",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 4
+    },
+    {
+      "label": "weasel frost spruce elm park rice",
+      "separator": " ",
+      "set": "english-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 6
+    },
+    {
+      "label": "weasel-frost-spruce-elm-park-rice-otter-apron-poem-flint-aspen-cotton-yarrow-hive-raccoon-raccoon-carpet",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 17
+    },
+    {
+      "label": "weasel-frost-spruce-elm-park-rice-otter-apron-poem-flint-aspen-cotton-yarrow-hive-raccoon-raccoon-carpet-oyster-fiddle-ruler-petal-zipper-badger-rice-tea-tube-bottle-candy-net-teal-pear-llama-dream-copper-delta-tide-compass-cable-dusk-glove-crab-song-screw-wire-bear-cactus-mirror-fabric-snake-candy-curtain-camera-vase-gate-thistle-puma-seal-compass-sleeve-ash-panther-arrow-lion-spoon",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 64
+    },
+    {
+      "label": "clock",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 1
+    },
+    {
+      "label": "clock-turtle-bluff-stamp",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 4
+    },
+    {
+      "label": "clock turtle bluff stamp hook drift",
+      "separator": " ",
+      "set": "english-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 6
+    },
+    {
+      "label": "clock-turtle-bluff-stamp-hook-drift-bronze-parrot-seed-store-ink-stone-dice-plate-coast-hawk-pearl",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 17
+    },
+    {
+      "label": "clock-turtle-bluff-stamp-hook-drift-bronze-parrot-seed-store-ink-stone-dice-plate-coast-hawk-pearl-drum-robe-bakery-nail-station-robin-handle-fog-kite-ribbon-barley-snail-wolf-beetle-jasmine-bucket-coconut-dove-notebook-shoe-letter-dove-crystal-ladder-echo-oar-cube-city-bottle-wind-bat-sofa-seal-elm-lock-paper-sketch-mitten-sofa-bluebell-ladder-tile-robe-wire-elm-glacier-salmon",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 64
+    },
+    {
+      "label": "coat",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 1
+    },
+    {
+      "label": "coat-cod-bay-crow",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 4
+    },
+    {
+      "label": "coat cod bay crow jug bench",
+      "separator": " ",
+      "set": "english-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 6
+    },
+    {
+      "label": "coat-cod-bay-crow-jug-bench-breeze-boat-chisel-velvet-floor-station-ink-house-stork-jay-copper",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 17
+    },
+    {
+      "label": "coat-cod-bay-crow-jug-bench-breeze-boat-chisel-velvet-floor-station-ink-house-stork-jay-copper-quail-track-fossil-flint-scroll-piano-watch-camera-yak-crown-coffee-cape-ridge-badge-beacon-jasmine-otter-cable-yak-hill-crow-cricket-handle-loom-kite-ocean-roof-beetle-pipe-pelican-rug-alpine-pocket-crab-chalk-kestrel-wave-laurel-bracket-moon-lizard-canopy-jewel-cod-flame-diamond-zipper",
+      "separator": "-",
+      "set": "english-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 64
+    },
+    {
+      "label": "mink",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 1
+    },
+    {
+      "label": "mink-cup-teal-deer",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 4
+    },
+    {
+      "label": "mink cup teal deer boar mast",
+      "separator": " ",
+      "set": "short-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 6
+    },
+    {
+      "label": "mink-cup-teal-deer-boar-mast-jay-hawk-foam-pot-stem-hook-moss-cod-vine-ring-lamp",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 17
+    },
+    {
+      "label": "mink-cup-teal-deer-boar-mast-jay-hawk-foam-pot-stem-hook-moss-cod-vine-ring-lamp-roof-leaf-oven-book-moss-salt-box-rose-elm-gull-wall-kelp-horn-flag-wax-dice-nest-ant-desk-soap-goat-silk-bass-oven-bat-toy-moss-sofa-wall-teal-dish-dew-stem-ivy-tool-hare-rail-rope-rug-oak-gift-book-dusk-oar-wasp-crow-tent",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 64
+    },
+    {
+      "label": "jay",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 1
+    },
+    {
+      "label": "jay-pond-bay-box",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 4
+    },
+    {
+      "label": "jay pond bay box cup lion",
+      "separator": " ",
+      "set": "short-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 6
+    },
+    {
+      "label": "jay-pond-bay-box-cup-lion-vase-hook-ruby-elm-song-rice-vase-salt-grid-fog-dawn",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 17
+    },
+    {
+      "label": "jay-pond-bay-box-cup-lion-vase-hook-ruby-elm-song-rice-vase-salt-grid-fog-dawn-elm-stem-shoe-bud-nest-city-drum-wren-belt-ring-shop-drum-salt-oar-teal-hawk-box-dove-sofa-moss-dune-shoe-poem-moon-elm-book-lark-frog-net-lark-soap-roof-soap-kelp-rock-road-dawn-puma-sofa-jug-goat-tea-ball-puma-hawk-lily-mud",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 64
+    },
+    {
+      "label": "elm",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 1
+    },
+    {
+      "label": "elm-sand-moth-teal",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 4
+    },
+    {
+      "label": "elm sand moth teal bolt mask",
+      "separator": " ",
+      "set": "short-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 6
+    },
+    {
+      "label": "elm-sand-moth-teal-bolt-mask-elm-wasp-bay-dusk-lock-road-gull-bean-bell-pine-poem",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 17
+    },
+    {
+      "label": "elm-sand-moth-teal-bolt-mask-elm-wasp-bay-dusk-lock-road-gull-bean-bell-pine-poem-vest-oven-kite-crab-rose-wax-silk-pond-crab-ruby-tray-lion-soap-horn-vest-gull-mist-rice-city-frog-pipe-rail-goat-wren-dew-robe-tent-lava-boat-wool-dew-rock-moon-wall-carp-rope-hare-lark-ink-mud-rug-dove-bowl-pan-sock-belt-lily",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 64
+    },
+    {
+      "label": "wax",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 1
+    },
+    {
+      "label": "wax-lamp-poem-vine",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 4
+    },
+    {
+      "label": "wax lamp poem vine oak fog",
+      "separator": " ",
+      "set": "short-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 6
+    },
+    {
+      "label": "wax-lamp-poem-vine-oak-fog-gull-jar-hawk-wool-rice-tea-pen-gull-mist-mist-hail",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 17
+    },
+    {
+      "label": "wax-lamp-poem-vine-oak-fog-gull-jar-hawk-wool-rice-tea-pen-gull-mist-mist-hail-pond-card-wing-yarn-echo-gem-mask-boat-foam-owl-loaf-tide-book-bear-wave-sun-silk-bark-lens-vest-rug-gem-deer-bag-bay-hawk-horn-jar-ibis-hat-mug-silk-hook-wool-tea-frog-ibis-rope-bowl-bell-fork-sun-jay-hawk-fork-hat-vase",
+      "separator": "-",
+      "set": "short-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 64
+    },
+    {
+      "label": "locust",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 1
+    },
+    {
+      "label": "locust-sycamore-slope-buffalo",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 4
+    },
+    {
+      "label": "locust sycamore slope buffalo algae iris",
+      "separator": " ",
+      "set": "nature-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 6
+    },
+    {
+      "label": "locust-sycamore-slope-buffalo-algae-iris-snow-crystal-apple-beaver-plum-ibis-stem-chickadee-swan-lizard-blossom",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 17
+    },
+    {
+      "label": "locust-sycamore-slope-buffalo-algae-iris-snow-crystal-apple-beaver-plum-ibis-stem-chickadee-swan-lizard-blossom-stone-cliff-frost-bluff-hazel-dove-bud-hare-pebble-star-sunset-stork-jay-sparrow-creek-pear-raccoon-stork-lizard-sycamore-lizard-moon-yarrow-maple-larch-cod-drift-stone-bark-fossil-marsh-egret-fruit-lion-coral-starling-tern-prairie-shore-fir-dew-savanna-dusk-slope-horse-cod-gecko",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "00000000-0000-0000-0000-000000000000",
+      "words": 64
+    },
+    {
+      "label": "glade",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 1
+    },
+    {
+      "label": "glade-crane-snake-oak",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 4
+    },
+    {
+      "label": "glade crane snake oak hare violet",
+      "separator": " ",
+      "set": "nature-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 6
+    },
+    {
+      "label": "glade-crane-snake-oak-hare-violet-fawn-bass-osprey-wheat-bean-parrot-lake-seal-pebble-weasel-bamboo",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 17
+    },
+    {
+      "label": "glade-crane-snake-oak-hare-violet-fawn-bass-osprey-wheat-bean-parrot-lake-seal-pebble-weasel-bamboo-canopy-aspen-drift-crane-lotus-pine-pelican-cobweb-algae-rose-chestnut-yarrow-meadow-daisy-spring-yarrow-hare-parrot-badger-ash-slate-butterfly-tadpole-summit-mussel-badger-flint-sycamore-nettle-cypress-cobweb-thunder-berry-moth-palm-gull-fog-mole-ridge-lava-barley-ridge-lark-shark-jaguar-dune-garden",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "words": 64
+    },
+    {
+      "label": "alpine",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 1
+    },
+    {
+      "label": "alpine-zebra-weasel-petal",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 4
+    },
+    {
+      "label": "alpine zebra weasel petal canyon mountain",
+      "separator": " ",
+      "set": "nature-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 6
+    },
+    {
+      "label": "alpine-zebra-weasel-petal-canyon-mountain-moon-larch-summit-cloud-alder-camel-bass-whale-bear-thunder-mushroom",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 17
+    },
+    {
+      "label": "alpine-zebra-weasel-petal-canyon-mountain-moon-larch-summit-cloud-alder-camel-bass-whale-bear-thunder-mushroom-reef-dove-bloom-canyon-alder-mango-tiger-shore-moose-quail-thunder-bay-bay-llama-snail-shade-lake-shade-wolf-peach-coconut-wing-starling-goose-hedgehog-lake-goat-squirrel-water-alder-mud-maple-cypress-glacier-shell-crab-mink-lemon-fox-pear-cactus-bloom-apple-lobster-summit-moose-lark",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "words": 64
+    },
+    {
+      "label": "mango",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 1
+    },
+    {
+      "label": "mango-raccoon-lemon-mouse",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 4
+    },
+    {
+      "label": "mango raccoon lemon mouse frog slate",
+      "separator": " ",
+      "set": "nature-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 6
+    },
+    {
+      "label": "mango-raccoon-lemon-mouse-frog-slate-cliff-ivy-horse-island-thunder-egret-egret-panther-hill-shell-sunset",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 17
+    },
+    {
+      "label": "mango-raccoon-lemon-mouse-frog-slate-cliff-ivy-horse-island-thunder-egret-egret-panther-hill-shell-sunset-stone-aspen-spring-frog-laurel-alpine-granite-sapling-blossom-kelp-thunder-quail-holly-swan-swan-magnolia-alpine-eagle-daisy-alpine-puma-canopy-bark-thorn-savanna-hawk-walnut-drift-cloud-panther-clover-rabbit-chestnut-weasel-fruit-jay-bear-seal-ridge-nectar-meadow-swift-whale-boar-elm-shell-moth",
+      "separator": "-",
+      "set": "nature-v1",
+      "uuid": "01992000-1234-7000-8000-000000000001",
+      "words": 64
+    }
+  ]
+}

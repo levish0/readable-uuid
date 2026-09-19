@@ -1,0 +1,22 @@
+{
+  "name": "readable-uuid",
+  "description": "Deterministic English word aliases for UUIDs, powered by Rust and BLAKE3",
+  "license": "MIT",
+  "repository": "https://github.com/levish0/readable-uuid",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts", "README.md", "LICENSE", "*.node"],
+  "engines": {
+    "node": ">=20"
+  },
+  "napi": {
+    "binaryName": "readable-uuid",
+    "targets": [
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu",
+      "aarch64-apple-darwin",
+      "x86_64-apple-darwin"
+    ]
+  }
+}

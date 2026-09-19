@@ -1,0 +1,48 @@
+name: native
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: bindings/node/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: bindings/node/.nvmrc
+          cache: pnpm
+          cache-dependency-path: bindings/node/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: bindings/node
+      - run: pnpm run check
+        working-directory: bindings/node
+      - run: cargo xtask npm-build --target ${{ matrix.target }}
+        working-directory: bindings/node
+      - run: pnpm run test
+        working-directory: bindings/node
+      - run: cargo xtask npm-pack
+        working-directory: bindings/node
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.target }}
+          path: |
+            bindings/node/pkg-npm/*.node
+            bindings/node/pkg-npm/readable-uuid.*.json
+          if-no-files-found: error

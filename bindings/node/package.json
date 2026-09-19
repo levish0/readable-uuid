@@ -1,0 +1,33 @@
+{
+  "name": "readable-uuid-dev",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "cargo xtask npm-build",
+    "test": "node --test test/*.cjs",
+    "bench": "node bench/compare.cjs",
+    "bench:popularity": "node bench/popularity.mjs",
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "check": "pnpm run fmt:check && pnpm run lint",
+    "pack": "cargo xtask npm-pack",
+    "publish:check": "cargo xtask npm-publish --dry-run",
+    "release": "cargo xtask npm-publish"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "3.10.4",
+    "prettier": "3.9.8",
+    "eslint": "10.11.0",
+    "@eslint/js": "10.0.1",
+    "globals": "17.12.0",
+    "human-id": "4.2.1",
+    "unique-names-generator": "4.7.1",
+    "humanhash": "1.0.4",
+    "wordhash": "1.0.1"
+  }
+}

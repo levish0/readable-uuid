@@ -1,0 +1,33 @@
+{
+  "fetchedAt": "2026-09-19T13:22:58.494Z",
+  "packages": [
+    {
+      "source": "https://api.npmjs.org/downloads/point/last-week/human-id",
+      "downloads": 3765131,
+      "start": "2026-09-12",
+      "end": "2026-09-18",
+      "package": "human-id"
+    },
+    {
+      "source": "https://api.npmjs.org/downloads/point/last-week/unique-names-generator",
+      "downloads": 577651,
+      "start": "2026-09-12",
+      "end": "2026-09-18",
+      "package": "unique-names-generator"
+    },
+    {
+      "source": "https://api.npmjs.org/downloads/point/last-week/humanhash",
+      "downloads": 934,
+      "start": "2026-09-12",
+      "end": "2026-09-18",
+      "package": "humanhash"
+    },
+    {
+      "source": "https://api.npmjs.org/downloads/point/last-week/wordhash",
+      "downloads": 5,
+      "start": "2026-09-12",
+      "end": "2026-09-18",
+      "package": "wordhash"
+    }
+  ]
+}

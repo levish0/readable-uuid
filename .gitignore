@@ -24,3 +24,9 @@ target
 # Added by cargo
 
 /target
+
+node_modules/
+**/pkg-npm/
+**/artifacts/
+**/release/
+*.tgz
