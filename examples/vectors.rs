@@ -3,7 +3,7 @@ use readable_uuid::{ReadableUuid, WordSet};
 fn main() {
     let mut vectors = Vec::new();
     let mut dictionaries = serde_json::Map::new();
-    for set in WordSet::ALL {
+    for &set in WordSet::ALL {
         dictionaries.insert(
             set.name().into(),
             serde_json::json!(

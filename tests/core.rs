@@ -2,7 +2,7 @@ use readable_uuid::{Error, MAX_WORDS, ReadableUuid, Uuid, WordSet};
 
 #[test]
 fn dictionaries_are_valid_and_short_is_short() {
-    for set in WordSet::ALL {
+    for &set in WordSet::ALL {
         ReadableUuid::builder()
             .custom_words(set.words())
             .build()
@@ -37,7 +37,7 @@ fn canonical_input_and_appending() {
 
 #[test]
 fn prefix_is_stable_across_xof_blocks() {
-    for set in WordSet::ALL {
+    for &set in WordSet::ALL {
         let long = ReadableUuid::builder()
             .word_set(set)
             .words(MAX_WORDS)
@@ -134,7 +134,8 @@ fn frozen_vectors_and_dictionaries() {
     let data: serde_json::Value = serde_json::from_str(include_str!("vectors.json")).unwrap();
     for row in data["vectors"].as_array().unwrap() {
         let set = WordSet::ALL
-            .into_iter()
+            .iter()
+            .copied()
             .find(|s| s.name() == row["set"].as_str().unwrap())
             .unwrap();
         let formatter = ReadableUuid::builder()
@@ -148,7 +149,7 @@ fn frozen_vectors_and_dictionaries() {
             row["label"].as_str().unwrap()
         );
     }
-    for set in WordSet::ALL {
+    for &set in WordSet::ALL {
         let canonical = format!("{}\n", set.words().join("\n"));
         assert_eq!(
             blake3::hash(canonical.as_bytes()).to_hex().as_str(),

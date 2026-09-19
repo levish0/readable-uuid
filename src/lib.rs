@@ -12,16 +12,22 @@
 use std::{collections::HashSet, fmt};
 pub use uuid::Uuid;
 
+mod limits;
+pub use limits::{MAX_DICTIONARY_WORDS, MAX_WORD_BYTES};
+
 mod lists {
     include!(concat!(env!("OUT_DIR"), "/lists.rs"));
 }
 
+/// Version of the complete conversion protocol: domain, UUID byte order, XOF
+/// consumption, little-endian candidates and rejection sampling.
 pub const ALGORITHM: &str = "blake3-v1";
 
 /// Resource limit, not an entropy guarantee.
 pub const MAX_WORDS: usize = 64;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum WordSet {
     #[default]
     EnglishV1,
@@ -30,7 +36,9 @@ pub enum WordSet {
 }
 
 impl WordSet {
-    pub const ALL: [Self; 3] = [Self::EnglishV1, Self::ShortV1, Self::NatureV1];
+    /// Available dictionaries. New sets may be added without changing this type.
+    pub const ALL: &'static [Self] = &[Self::EnglishV1, Self::ShortV1, Self::NatureV1];
+
     pub const fn name(self) -> &'static str {
         match self {
             Self::EnglishV1 => "english-v1",
@@ -57,26 +65,33 @@ impl WordSet {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
     InvalidWordCount,
     InvalidDictionarySize,
     InvalidWord(usize),
+    WordTooLong(usize),
     DuplicateWord(usize),
     InvalidSeparator,
     InvalidUuid(uuid::Error),
+    OutputTooLong,
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::InvalidWordCount => write!(f, "word count must be 1..={MAX_WORDS}"),
-            Self::InvalidDictionarySize => f.write_str("dictionary must contain 2..=65536 words"),
+            Self::InvalidDictionarySize => {
+                write!(f, "dictionary must contain 2..={MAX_DICTIONARY_WORDS} words")
+            }
             Self::InvalidWord(i) => write!(f, "word {i} must contain only lowercase ASCII letters"),
+            Self::WordTooLong(index) => write!(f, "word {index} exceeds {MAX_WORD_BYTES} bytes"),
             Self::DuplicateWord(i) => write!(f, "duplicate word at index {i}"),
             Self::InvalidSeparator => {
                 f.write_str("separator must be 1..=32 ASCII punctuation or space bytes")
             }
             Self::InvalidUuid(e) => e.fmt(f),
+            Self::OutputTooLong => f.write_str("output length exceeds the supported capacity"),
         }
     }
 }
@@ -127,6 +142,7 @@ impl<'a> ReadableUuid<'a> {
     pub fn format_str(&self, id: &str) -> Result<String, Error> {
         Ok(self.format(&Uuid::try_parse(id).map_err(Error::InvalidUuid)?))
     }
+
     /// Appends a label; clear the buffer first to replace its contents.
     pub fn write_into(&self, id: &Uuid, output: &mut String) {
         output.reserve(self.max_len);
@@ -157,6 +173,7 @@ impl<'a> ReadableUuid<'a> {
     pub fn dictionary_len(&self) -> usize {
         self.dictionary.len()
     }
+
     /// Log2 of word-sequence space, not input entropy or guaranteed uniqueness.
     pub fn combination_bits(&self) -> f64 {
         self.words as f64 * (self.dictionary.len() as f64).log2()
@@ -171,6 +188,10 @@ impl<'a> Builder<'a> {
         self
     }
 
+    /// Borrows an ordered dictionary, validated once by [`Self::build`].
+    ///
+    /// Entries must be unique lowercase ASCII words of 1..=64 bytes. The caller
+    /// owns the list and must preserve its contents and order for stable labels.
     pub fn custom_words(mut self, words: &'a [&'a str]) -> Self {
         self.dictionary = words;
         self.custom = true;
@@ -192,7 +213,7 @@ impl<'a> Builder<'a> {
         if !(1..=MAX_WORDS).contains(&self.words) {
             return Err(Error::InvalidWordCount);
         }
-        if !(2..=65536).contains(&self.dictionary.len()) {
+        if !(2..=MAX_DICTIONARY_WORDS).contains(&self.dictionary.len()) {
             return Err(Error::InvalidDictionarySize);
         }
         if self.separator.is_empty()
@@ -207,6 +228,9 @@ impl<'a> Builder<'a> {
         if self.custom {
             let mut seen = HashSet::with_capacity(self.dictionary.len());
             for (i, word) in self.dictionary.iter().enumerate() {
+                if word.len() > MAX_WORD_BYTES {
+                    return Err(Error::WordTooLong(i));
+                }
                 if word.is_empty() || !word.bytes().all(|b| b.is_ascii_lowercase()) {
                     return Err(Error::InvalidWord(i));
                 }
@@ -221,7 +245,7 @@ impl<'a> Builder<'a> {
         let max_len = longest
             .checked_mul(self.words)
             .and_then(|v| v.checked_add(self.separator.len() * (self.words - 1)))
-            .ok_or(Error::InvalidDictionarySize)?;
+            .ok_or(Error::OutputTooLong)?;
         Ok(ReadableUuid {
             dictionary: self.dictionary,
             words: self.words,

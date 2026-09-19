@@ -29,7 +29,8 @@ fn with_formatter<T>(
         builder = builder.custom_words(&custom_words);
     } else if let Some(ref name) = options.word_set {
         let set = WordSet::ALL
-            .into_iter()
+            .iter()
+            .copied()
             .find(|s| s.name() == name)
             .ok_or_else(|| napi::Error::from_reason(format!("unknown word set: {name}")))?;
         builder = builder.word_set(set);
@@ -90,7 +91,8 @@ pub struct WordSetInfo {
 #[napi]
 pub fn word_sets() -> Vec<WordSetInfo> {
     WordSet::ALL
-        .into_iter()
+        .iter()
+        .copied()
         .map(|set| WordSetInfo {
             name: set.name().into(),
             size: set.words().len() as u32,
