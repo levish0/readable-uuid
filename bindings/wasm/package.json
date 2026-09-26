@@ -28,6 +28,6 @@
     "@scure/bip39": "2.4.0",
     "@types/node": "24.13.6",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.0"
+    "typescript-eslint": "8.70.1"
   }
 }
