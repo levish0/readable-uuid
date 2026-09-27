@@ -20,7 +20,7 @@
     "release": "cargo xtask npm-publish"
   },
   "devDependencies": {
-    "prettier": "3.9.8",
+    "prettier": "3.9.9",
     "eslint": "10.11.0",
     "@eslint/js": "10.0.1",
     "globals": "17.12.0",
